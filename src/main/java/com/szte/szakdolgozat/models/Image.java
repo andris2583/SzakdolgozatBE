@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -13,9 +14,9 @@ public class Image {
     @Id
     private String id;
     private String name;
-    private String location;
-    private List<String> categories;
-    private Date uploaded;
+    private String location = "Unknown";
+    private List<String> categories = new ArrayList<>();
+    private Date uploaded = new Date(System.currentTimeMillis());
     private String imgB64;
     //TODO lots of metadata
 

@@ -13,15 +13,14 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 
-public class ThumbnailGenerator {
+import static com.szte.szakdolgozat.util.Constants.IMG_PATH;
+import static com.szte.szakdolgozat.util.Constants.THUMBNAIL_PATH;
 
-    private static final String IMG_PATH = "C:/Users/András/Desktop/Egyetem/Szakdolgozat/BackEnd/szakdolgozat/src/main/resources/imgs/";
-    private static final String THUMBNAIL_PATH = "C:/Users/András/Desktop/Egyetem/Szakdolgozat/BackEnd/szakdolgozat/src/main/resources/thumbnails/";
-    
-    public void generateThumbnail(String name,Float percentage) throws IOException {
+public class ThumbnailGenerator {
+    public static void generateThumbnail(String name,Float percentage) throws IOException {
         BufferedImage image = ImageIO.read(new File(IMG_PATH+name));
         int type = image.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : image.getType();
-        BufferedImage compressedImageFile = resizeImage(image,type,200,200);
+        BufferedImage compressedImageFile = resizeImage(image,type,Math.round(image.getWidth()*percentage),Math.round(image.getHeight()*percentage));
         ImageIO.write(compressedImageFile, "jpg", new File(THUMBNAIL_PATH+name)); //change path where you want it saved
 //        OutputStream os = new FileOutputStream(compressedImageFile);
 //
@@ -42,7 +41,7 @@ public class ThumbnailGenerator {
 //        writer.dispose();
     }
 
-    private BufferedImage resizeImage(BufferedImage originalImage, int type, int IMG_WIDTH, int IMG_HEIGHT) {
+    private static BufferedImage resizeImage(BufferedImage originalImage, int type, int IMG_WIDTH, int IMG_HEIGHT) {
         BufferedImage resizedImage = new BufferedImage(IMG_WIDTH, IMG_HEIGHT, type);
         Graphics2D g = resizedImage.createGraphics();
         g.drawImage(originalImage, 0, 0, IMG_WIDTH, IMG_HEIGHT, null);

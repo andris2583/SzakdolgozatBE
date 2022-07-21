@@ -15,6 +15,7 @@ import java.util.Base64;
 import java.util.List;
 
 import static com.szte.szakdolgozat.util.Constants.IMG_PATH;
+import static com.szte.szakdolgozat.util.Constants.THUMBNAIL_PATH;
 
 @RestController
 @AllArgsConstructor
@@ -40,6 +41,15 @@ public class ImageController {
 
     @GetMapping("/get")
     public Image getImageById(@RequestParam String id){
-        return imageService.getImageById(id).orElse(null);
+        Image image = imageService.getImageById(id).orElse(null);
+        byte[] fileContent;
+        try {
+            assert image != null;
+            fileContent = FileUtils.readFileToByteArray(new File(IMG_PATH+image.getName()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        image.setImgB64(Base64.getEncoder().encodeToString(fileContent));
+        return image;
     }
 }

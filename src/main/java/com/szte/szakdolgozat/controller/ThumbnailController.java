@@ -1,5 +1,6 @@
 package com.szte.szakdolgozat.controller;
 
+import com.szte.szakdolgozat.models.Image;
 import com.szte.szakdolgozat.models.Thumbnail;
 import com.szte.szakdolgozat.service.ThumbnailService;
 import com.szte.szakdolgozat.util.Constants;
@@ -8,10 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,20 +42,4 @@ public class ThumbnailController {
         return thumbnails;
     }
 
-//
-//    @GetMapping("/getAll")
-//    public ResponseEntity<List<String>> getAll(){
-//        HttpHeaders responseHeaders = new HttpHeaders();
-//        responseHeaders.set("Access-Control-Allow-Origin","http://localhost:4200");
-//        List<String> imgStrings = urls.stream().map(url -> {
-//            byte[] fileContent;
-//            try {
-//                fileContent = FileUtils.readFileToByteArray(new File(url));
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//            return Base64.getEncoder().encodeToString(fileContent);
-//        }).toList();
-//        return ResponseEntity.ok().headers(responseHeaders).body(imgStrings);
-//    }
 }
