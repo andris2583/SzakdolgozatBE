@@ -20,13 +20,16 @@ public class ImageService {
     public List<Image> getAllImages(){
         return imageRepository.findAll();
     }
+    public Optional<Image> getImageById(String id){
+        return imageRepository.findById(id);
+    }
 
     public Image insertImage(Image image){
         return imageRepository.insert(image);
     }
 
-    public Optional<Image> getImageById(String id){
-        return imageRepository.findById(id);
+    public void deleteImage(Image image){
+        imageRepository.delete(image);
     }
 
 

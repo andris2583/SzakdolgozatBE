@@ -1,27 +1,17 @@
 package com.szte.szakdolgozat;
 
-import com.szte.szakdolgozat.models.Image;
-import com.szte.szakdolgozat.models.Thumbnail;
 import com.szte.szakdolgozat.service.ImageService;
 import com.szte.szakdolgozat.service.ThumbnailService;
-import com.szte.szakdolgozat.util.ThumbnailGenerator;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static com.szte.szakdolgozat.util.Constants.IMG_PATH;
+import static com.szte.szakdolgozat.util.Constants.IMAGE_PATH;
 import static com.szte.szakdolgozat.util.Constants.THUMBNAIL_PATH;
 
 @SpringBootApplication
@@ -44,7 +34,7 @@ public class SzakdolgozatApplication {
 
 //			//Insert images/thumbnails
 			List<String> thumbnailUrls = names.stream().map(val -> THUMBNAIL_PATH + val).toList();
-			List<String> imgUrls = names.stream().map(val -> IMG_PATH + val).toList();
+			List<String> imgUrls = names.stream().map(val -> IMAGE_PATH + val).toList();
 //			for (int i = 0; i < 1; i++) {
 //				for(String url : imgUrls){
 //					Image image = new Image();

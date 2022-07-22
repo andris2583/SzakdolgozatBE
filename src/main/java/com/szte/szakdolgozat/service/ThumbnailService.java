@@ -22,4 +22,8 @@ public class ThumbnailService {
         return thumbnailRepository.insert(thumbnail);
     }
 
+    public void deleteThumbnail(Thumbnail thumbnail){
+        thumbnailRepository.delete(thumbnail);
+    }
+
 }

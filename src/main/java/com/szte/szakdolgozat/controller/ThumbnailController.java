@@ -42,4 +42,13 @@ public class ThumbnailController {
         return thumbnails;
     }
 
+    @PutMapping("/insert")
+    public Thumbnail insertThumbnail(@RequestParam Thumbnail thumbnail){
+        return thumbnailService.insertThumbnail(thumbnail);
+    }
+
+    @DeleteMapping("/delete")
+    public void deleteThumbnail(@RequestBody Thumbnail thumbnail){
+        thumbnailService.deleteThumbnail(thumbnail);
+    }
 }
