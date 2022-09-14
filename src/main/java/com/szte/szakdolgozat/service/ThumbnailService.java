@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -26,4 +27,8 @@ public class ThumbnailService {
         thumbnailRepository.delete(thumbnail);
     }
 
+    public Thumbnail getThumbnailByImageId(String id) {
+        return thumbnailRepository.findAll().stream().filter(thumbnail -> Objects.equals(thumbnail.getImageID(), id)
+        ).findFirst().orElse(null);
+    }
 }

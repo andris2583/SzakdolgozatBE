@@ -5,15 +5,25 @@ import com.szte.szakdolgozat.models.Thumbnail;
 import com.szte.szakdolgozat.service.ImageService;
 
 import com.szte.szakdolgozat.service.ThumbnailService;
+import com.szte.szakdolgozat.util.ImageUtils;
 import com.szte.szakdolgozat.util.ThumbnailGenerator;
 import lombok.AllArgsConstructor;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+import javax.imageio.ImageIO;
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +46,7 @@ public class ImageController {
         images.forEach(image -> {
             byte[] fileContent;
             try {
-                fileContent = FileUtils.readFileToByteArray(new File(IMAGE_PATH +image.getName()));
+                fileContent = FileUtils.readFileToByteArray(new File(IMAGE_PATH +image.getNameWithExtension()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -45,13 +55,13 @@ public class ImageController {
         return images;
     }
 
-    @GetMapping("/get")
-    public Image getImageById(@RequestParam String id){
+    @GetMapping("/get/{id}")
+    public Image getImageById(@PathVariable String id){
         Image image = imageService.getImageById(id).orElse(null);
         byte[] fileContent;
         try {
             assert image != null;
-            fileContent = FileUtils.readFileToByteArray(new File(IMAGE_PATH +image.getName()));
+            fileContent = FileUtils.readFileToByteArray(new File(IMAGE_PATH +image.getNameWithExtension()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -61,9 +71,10 @@ public class ImageController {
 
     @PutMapping("/insert")
     public Image insertImage(@RequestBody Image image){
-        //TODO extensions
-        byte[] data = Base64.getDecoder().decode(image.getImgB64());
-        try (OutputStream stream = new FileOutputStream(IMAGE_PATH +image.getName())) {
+        image.setExtension(FilenameUtils.getExtension(image.getName()));
+        image.setName(FilenameUtils.getBaseName(image.getName()));
+        byte[] data = Base64.getDecoder().decode(image.getImgB64().replaceFirst("data:image/png;base64,",""));
+        try (OutputStream stream = new FileOutputStream(IMAGE_PATH + image.getNameWithExtension())) {
             stream.write(data);
         } catch (IOException e) {
             System.err.println(e);
@@ -71,11 +82,14 @@ public class ImageController {
         Image inserted = imageService.insertImage(image);
         Thumbnail thumbnail = new Thumbnail();
         thumbnail.setName(inserted.getName());
+        thumbnail.setExtension(inserted.getExtension());
         thumbnail.setImageID(inserted.getId());
-        try {
-            ThumbnailGenerator.generateThumbnail(thumbnail.getName(),0.1f);
+        try (OutputStream stream = new FileOutputStream(THUMBNAIL_PATH + thumbnail.getNameWithExtension())) {
+            stream.write(ImageUtils.toByteArray(
+                    ThumbnailGenerator.generateThumbnail(thumbnail.getNameWithExtension(), 0.1f),thumbnail.getExtension()
+            ));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println(e);
         }
         thumbnailService.insertThumbnail(thumbnail);
         return image;
@@ -86,9 +100,9 @@ public class ImageController {
         Image image = imageService.getImageById(id).orElse(null);
         assert image != null;
         try {
-            File file = new File(IMAGE_PATH +image.getName());
+            File file = new File(IMAGE_PATH + image.getNameWithExtension());
             Files.deleteIfExists(file.toPath());
-            file = new File(THUMBNAIL_PATH+image.getName());
+            file = new File(THUMBNAIL_PATH + image.getNameWithExtension());
             Files.deleteIfExists(file.toPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -99,4 +113,41 @@ public class ImageController {
         thumbnailService.deleteThumbnail(thumbnail);
         imageService.deleteImage(image);
     }
+
+    @GetMapping(value = "/getImageData/{id}",
+            produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<?> getImageData(@PathVariable String id) throws IOException {
+        try {
+            Image image = getImageById(id);
+            Path imagePath = Paths.get(IMAGE_PATH+image.getNameWithExtension());
+
+                ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(imagePath));
+                return ResponseEntity
+                        .ok()
+                        .contentLength(imagePath.toFile().length())
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping(value = "/getImageDataNoZoom/{id}",
+            produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<?> getImageDataNoZoom(@PathVariable String id) throws IOException {
+        try {
+            Image image = getImageById(id);
+            Path imagePath = Paths.get(IMAGE_PATH+image.getNameWithExtension());
+
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(imagePath));
+            return ResponseEntity
+                    .ok()
+                    .contentLength(imagePath.toFile().length())
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

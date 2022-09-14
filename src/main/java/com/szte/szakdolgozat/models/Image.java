@@ -14,10 +14,15 @@ public class Image {
     @Id
     private String id;
     private String name;
+    private String extension;
     private String location = "Unknown";
     private List<String> categories = new ArrayList<>();
     private Date uploaded = new Date(System.currentTimeMillis());
     private String imgB64;
     //TODO lots of metadata
+
+    public String getNameWithExtension(){
+        return this.name + "." + this.extension;
+    }
 
 }
