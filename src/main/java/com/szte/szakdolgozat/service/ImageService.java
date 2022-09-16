@@ -1,9 +1,7 @@
 package com.szte.szakdolgozat.service;
 
 import com.szte.szakdolgozat.models.Image;
-import com.szte.szakdolgozat.models.Thumbnail;
 import com.szte.szakdolgozat.repository.ImageRepository;
-import com.szte.szakdolgozat.repository.ThumbnailRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -33,4 +31,7 @@ public class ImageService {
     }
 
 
+    public Image saveImage(Image image) {
+        return imageRepository.save(image);
+    }
 }

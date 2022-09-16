@@ -1,31 +1,20 @@
 package com.szte.szakdolgozat;
 
+import com.szte.szakdolgozat.controller.CategoryController;
 import com.szte.szakdolgozat.controller.ImageController;
-import com.szte.szakdolgozat.controller.ThumbnailController;
+import com.szte.szakdolgozat.models.Category;
 import com.szte.szakdolgozat.models.Image;
-import com.szte.szakdolgozat.models.Thumbnail;
-import com.szte.szakdolgozat.service.ImageService;
-import com.szte.szakdolgozat.service.ThumbnailService;
-import com.szte.szakdolgozat.util.ThumbnailGenerator;
-import org.apache.commons.io.FileUtils;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Base64;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
-import static com.szte.szakdolgozat.util.Constants.IMAGE_PATH;
-import static com.szte.szakdolgozat.util.Constants.THUMBNAIL_PATH;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 @EnableMongoRepositories
@@ -37,8 +26,11 @@ public class SzakdolgozatApplication {
 	}
 
 	@Bean
-	CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate){
+	CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, CategoryController categoryController){
 		return args -> {
+
+			//INIT DB
+
 //			File folder = new File(IMAGE_PATH);
 //			File[] listOfFiles = folder.listFiles();;
 //			for (int i = 0; i!= listOfFiles.length; i++){
@@ -56,6 +48,26 @@ public class SzakdolgozatApplication {
 //				String encodedString = Base64.getEncoder().encodeToString(fileContent);
 //				image.setImgB64("data:image/png;base64,"+encodedString);
 //				imageController.insertImage(image);
+//			}
+
+			//ASSIGN RANDOM CATEGORIES TO IMAGES
+
+
+//			List<String> categories = new ArrayList<>(List.of("equable", "poor", "giddy", "bored", "hypnotic", "ruddy", "violent", "lowly", "flashy", "difficult", "breezy", "receptive", "ambiguous", "faulty", "combative", "hapless", "curvy", "invincible", "acceptable", "jazzy", "ratty", "stupid", "evanescent", "old", "full", "obsolete", "heartbreaking", "encouraging", "paltry", "oafish")).stream().map(n -> n.replaceFirst(String.valueOf(n.charAt(0)),String.valueOf(n.charAt(0)).toUpperCase())).collect(Collectors.toList());
+//			List<Image> images = imageController.getAllImages();
+//			for(Image image : images){
+//				String cat1 = categories.get(new Random().nextInt(categories.size()));
+//				categories.remove(cat1);
+//				String cat2 = categories.get(new Random().nextInt(categories.size()));
+//				categories.add(cat1);
+//				image.setCategories(new ArrayList<>(List.of(cat1,cat2)));
+//				imageController.updateImage(image);
+//			}
+//
+//			for (String cat : categories){
+//				Category category = new Category();
+//				category.setName(cat);
+//				categoryController.insertCategory(category);
 //			}
 
 		};

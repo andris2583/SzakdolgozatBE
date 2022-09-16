@@ -1,10 +1,8 @@
 package com.szte.szakdolgozat.controller;
 
 import com.szte.szakdolgozat.models.Image;
-import com.szte.szakdolgozat.models.Thumbnail;
 import com.szte.szakdolgozat.service.ImageService;
 
-import com.szte.szakdolgozat.service.ThumbnailService;
 import com.szte.szakdolgozat.util.ImageUtils;
 import com.szte.szakdolgozat.util.ThumbnailGenerator;
 import lombok.AllArgsConstructor;
@@ -38,7 +36,6 @@ import static com.szte.szakdolgozat.util.Constants.THUMBNAIL_PATH;
 @RequestMapping("/image")
 public class ImageController {
     private final ImageService imageService;
-    private final ThumbnailService thumbnailService;
 
     @GetMapping("/getAll")
     public List<Image> getAllImages(){
@@ -46,7 +43,7 @@ public class ImageController {
         images.forEach(image -> {
             byte[] fileContent;
             try {
-                fileContent = FileUtils.readFileToByteArray(new File(IMAGE_PATH +image.getNameWithExtension()));
+                fileContent = FileUtils.readFileToByteArray(new File(THUMBNAIL_PATH + image.getNameWithExtension()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -79,20 +76,12 @@ public class ImageController {
         } catch (IOException e) {
             System.err.println(e);
         }
-        Image inserted = imageService.insertImage(image);
-        Thumbnail thumbnail = new Thumbnail();
-        thumbnail.setName(inserted.getName());
-        thumbnail.setExtension(inserted.getExtension());
-        thumbnail.setImageID(inserted.getId());
-        try (OutputStream stream = new FileOutputStream(THUMBNAIL_PATH + thumbnail.getNameWithExtension())) {
-            stream.write(ImageUtils.toByteArray(
-                    ThumbnailGenerator.generateThumbnail(thumbnail.getNameWithExtension(), 0.1f),thumbnail.getExtension()
-            ));
-        } catch (IOException e) {
-            System.err.println(e);
-        }
-        thumbnailService.insertThumbnail(thumbnail);
-        return image;
+        return imageService.insertImage(image);
+    }
+
+    @PutMapping("/update")
+    public Image updateImage(@RequestBody Image image){
+        return imageService.saveImage(image);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -107,10 +96,6 @@ public class ImageController {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        Thumbnail thumbnail = thumbnailService.getAllThumbnails().stream().filter(thumbnail1 ->
-                Objects.equals(thumbnail1.getImageID(), image.getId())
-        ).toList().get(0);
-        thumbnailService.deleteThumbnail(thumbnail);
         imageService.deleteImage(image);
     }
 

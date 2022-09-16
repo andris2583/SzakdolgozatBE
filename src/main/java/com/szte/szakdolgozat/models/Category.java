@@ -6,15 +6,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
 @Document
-public class Thumbnail {
+public class Category {
     @Id
     private String id;
     private String name;
-    private String extension;
-    private String imageID;
-    private String imgB64;
-
-    public String getNameWithExtension(){
-        return this.name + "." + this.extension;
-    }
 }
