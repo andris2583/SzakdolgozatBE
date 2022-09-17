@@ -35,4 +35,4 @@ build/
 
 ### Images ###
 /src/main/resources/imgs
-/src/main/resources/thumbnails
+/src/main/resources/thumbnails+
