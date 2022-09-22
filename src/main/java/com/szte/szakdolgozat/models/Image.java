@@ -21,8 +21,11 @@ public class Image {
     private String imgB64;
     //TODO lots of metadata
 
-    public String getNameWithExtension(){
-        return this.name + "." + this.extension;
+    public String getIdWithExtension(){
+        return this.id + "." + this.extension;
     }
 
+    public String getThumbnailName() {
+        return this.id + ".png";
+    }
 }
