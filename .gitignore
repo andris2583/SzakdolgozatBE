@@ -37,3 +37,4 @@ build/
 /src/main/resources/imgs
 /src/main/resources/thumbnails
 /src/main/resources/mock-imgs
+/src/main/resources/tagger/

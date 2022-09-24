@@ -31,10 +31,10 @@ public class SzakdolgozatApplication {
 	@Bean
 	CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, CategoryController categoryController){
 		return args -> {
-//
+
 //			//INIT DB
 //
-//			File folder = new File("C:/Users/András/Desktop/Egyetem/Szakdolgozat/BackEnd/szakdolgozat/src/main/resources/mock-imgs/");
+//			File folder = new File("C:/Users/Andras/Desktop/Egyetem/Szakdolgozat/BackEnd/szakdolgozat/src/main/resources/mock-imgs/");
 //			File[] listOfFiles = folder.listFiles();;
 //			for (int i = 0; i!= listOfFiles.length; i++){
 //				String name = listOfFiles[i].getName();
@@ -44,7 +44,7 @@ public class SzakdolgozatApplication {
 //				image.setLocation("Szeged");
 //				byte[] fileContent = new byte[0];
 //				try {
-//					fileContent = FileUtils.readFileToByteArray(new File("C:/Users/András/Desktop/Egyetem/Szakdolgozat/BackEnd/szakdolgozat/src/main/resources/mock-imgs/"+name));
+//					fileContent = FileUtils.readFileToByteArray(new File("C:/Users/Andras/Desktop/Egyetem/Szakdolgozat/BackEnd/szakdolgozat/src/main/resources/mock-imgs/"+name));
 //				} catch (IOException e) {
 //					throw new RuntimeException(e);
 //				}
@@ -66,7 +66,7 @@ public class SzakdolgozatApplication {
 //				image.setCategories(new ArrayList<>(List.of(cat1,cat2)));
 //				imageController.updateImage(image);
 //			}
-
+//
 //			for (String cat : categories){
 //				Category category = new Category();
 //				category.setName(cat);
