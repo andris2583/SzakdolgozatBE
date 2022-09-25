@@ -1,12 +1,11 @@
 package com.szte.szakdolgozat.models;
 
 import lombok.Data;
+import org.aspectj.apache.bcel.classfile.Unknown;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Data
 @Document
@@ -16,10 +15,10 @@ public class Image {
     private String name;
     private String extension;
     private String location = "Unknown";
-    private List<String> categories = new ArrayList<>();
+    private List<String> tags = new ArrayList<>();
     private Date uploaded = new Date(System.currentTimeMillis());
     private String imgB64;
-    //TODO lots of metadata
+    private Object properties;
 
     public String getIdWithExtension(){
         return this.id + "." + this.extension;

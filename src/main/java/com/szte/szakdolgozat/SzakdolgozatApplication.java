@@ -1,10 +1,10 @@
 package com.szte.szakdolgozat;
 
-import com.szte.szakdolgozat.controller.CategoryController;
+import com.szte.szakdolgozat.controller.TagController;
 import com.szte.szakdolgozat.controller.ImageController;
-import com.szte.szakdolgozat.models.Category;
 import com.szte.szakdolgozat.models.Image;
-import org.apache.commons.io.FileUtils;
+import com.szte.szakdolgozat.models.Tag;
+import com.szte.szakdolgozat.service.TagService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,12 +12,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.szte.szakdolgozat.util.Constants.IMAGE_PATH;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @SpringBootApplication
 @EnableMongoRepositories
@@ -29,7 +27,7 @@ public class SzakdolgozatApplication {
 	}
 
 	@Bean
-	CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, CategoryController categoryController){
+	CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, TagService tagService){
 		return args -> {
 
 //			//INIT DB
@@ -56,22 +54,41 @@ public class SzakdolgozatApplication {
 //			//ASSIGN RANDOM CATEGORIES TO IMAGES
 //
 //
-//			List<String> categories = new ArrayList<>(List.of("equable", "poor", "giddy", "bored", "hypnotic", "ruddy", "violent", "lowly", "flashy", "difficult", "breezy", "receptive", "ambiguous", "faulty", "combative", "hapless", "curvy", "invincible", "acceptable", "jazzy", "ratty", "stupid", "evanescent", "old", "full", "obsolete", "heartbreaking", "encouraging", "paltry", "oafish")).stream().map(n -> n.replaceFirst(String.valueOf(n.charAt(0)),String.valueOf(n.charAt(0)).toUpperCase())).collect(Collectors.toList());
+//			List<String> tags = new ArrayList<>(List.of("equable", "poor", "giddy", "bored", "hypnotic", "ruddy", "violent", "lowly", "flashy", "difficult", "breezy", "receptive", "ambiguous", "faulty", "combative", "hapless", "curvy", "invincible", "acceptable", "jazzy", "ratty", "stupid", "evanescent", "old", "full", "obsolete", "heartbreaking", "encouraging", "paltry", "oafish")).stream().map(n -> n.replaceFirst(String.valueOf(n.charAt(0)),String.valueOf(n.charAt(0)).toUpperCase())).collect(Collectors.toList());
 //			List<Image> images = imageController.getAllImages();
 //			for(Image image : images){
-//				String cat1 = categories.get(new Random().nextInt(categories.size()));
-//				categories.remove(cat1);
-//				String cat2 = categories.get(new Random().nextInt(categories.size()));
-//				categories.add(cat1);
+//				String cat1 = tags.get(new Random().nextInt(tags.size()));
+//				tags.remove(cat1);
+//				String cat2 = tags.get(new Random().nextInt(tags.size()));
+//				tags.add(cat1);
 //				image.setCategories(new ArrayList<>(List.of(cat1,cat2)));
 //				imageController.updateImage(image);
 //			}
 //
-//			for (String cat : categories){
-//				Category category = new Category();
-//				category.setName(cat);
-//				categoryController.insertCategory(category);
+//			for (String cat : tags){
+//				Category tag = new Category();
+//				tag.setName(cat);
+//				tagController.insertCategory(tag);
 //			}
+
+			//TAG IMAGES IN DB AND INSERT THOSE TAGS
+
+//			List<Image> imageList = imageController.getAllImages("all");
+//			Set<String> tags = new HashSet<>() {
+//			};
+//			for (Image image : imageList){
+//				List<String> imgTags = imageController.generateTags(image);
+//				image.setTags(imgTags);
+//				imageController.updateImage(image);
+//				tags.addAll(imgTags);
+//			}
+//
+//			for (String tagname : tags){
+//				Tag tag = new Tag();
+//				tag.setName(tagname);
+//				tagService.insertTag(tag);
+//			}
+//			System.out.println("Finished");
 
 		};
 	}

@@ -1,9 +1,9 @@
 package com.szte.szakdolgozat.repository;
 
-import com.szte.szakdolgozat.models.Category;
+import com.szte.szakdolgozat.models.Tag;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CategoryRepository extends MongoRepository<Category,String> {
+public interface TagRepository extends MongoRepository<Tag,String> {
 }
