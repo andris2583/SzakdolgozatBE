@@ -1,5 +1,6 @@
 package com.szte.szakdolgozat.controller;
 
+import com.szte.szakdolgozat.models.BatchImageRequest;
 import com.szte.szakdolgozat.models.Image;
 import com.szte.szakdolgozat.models.Tag;
 import com.szte.szakdolgozat.service.ImageService;
@@ -41,11 +42,11 @@ public class ImageController {
     private final TagService tagService;
     private final ImageTagger imageTagger;
 
-    @GetMapping("/getAll/{tag}")
-    public List<Image> getAllImages(@PathVariable String tag){
-        List<Image> images = imageService.getAllImages();
-        if (!Objects.equals(tag, "all")){
-            images = images.stream().filter(image -> image.getTags().contains(tag)).collect(Collectors.toList());
+    @PutMapping("/getAll")
+    public List<Image> getAllImages(@RequestBody BatchImageRequest request){
+        List<Image> images = imageService.getAllImages(request.getPageCount()*request.getBatchSize(),request.getBatchSize());
+        if (!Objects.equals(request.getTag(), "all")){
+            images = images.stream().filter(image -> image.getTags().contains(request.getTag())).collect(Collectors.toList());
         }
         images.forEach(image -> {
             byte[] fileContent;
@@ -111,7 +112,7 @@ public class ImageController {
         try {
             File file = new File(IMAGE_PATH + image.getIdWithExtension());
             Files.deleteIfExists(file.toPath());
-            file = new File(THUMBNAIL_PATH + image.getIdWithExtension());
+            file = new File(THUMBNAIL_PATH + image.getId()+".png");
             Files.deleteIfExists(file.toPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
