@@ -17,8 +17,9 @@ import java.util.Optional;
 public class ImageService {
 
     private final ImageRepository imageRepository;
-    public List<Image> getAllImages(int skip,int limit){
-        return imageRepository.findAll(skip,limit);
+
+    public List<Image> getAllImages(){
+        return imageRepository.findAll();
     }
     public Optional<Image> getImageById(String id){
         return imageRepository.findById(id);

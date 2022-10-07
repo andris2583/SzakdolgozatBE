@@ -1,10 +1,7 @@
 package com.szte.szakdolgozat.util;
 
-import com.szte.szakdolgozat.models.Image;
 import lombok.AllArgsConstructor;
-import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 import org.tensorflow.SavedModelBundle;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
@@ -13,9 +10,6 @@ import org.tensorflow.Tensors;
 import javax.annotation.PreDestroy;
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
-
-import static com.szte.szakdolgozat.util.Constants.IMAGE_PATH;
 
 @AllArgsConstructor
 @Service

@@ -44,10 +44,13 @@ public class ImageController {
 
     @PutMapping("/getAll")
     public List<Image> getAllImages(@RequestBody BatchImageRequest request){
-        List<Image> images = imageService.getAllImages(request.getPageCount()*request.getBatchSize(),request.getBatchSize());
+        List<Image> images = imageService.getAllImages();
         if (!Objects.equals(request.getTag(), "all")){
             images = images.stream().filter(image -> image.getTags().contains(request.getTag())).collect(Collectors.toList());
         }
+        int from = Math.min(request.getPageCount()*request.getBatchSize(),images.size());
+        int to = Math.min(request.getPageCount()*request.getBatchSize()+ request.getBatchSize(),images.size());
+        images = images.subList(from,to);
         images.forEach(image -> {
             byte[] fileContent;
             try {
