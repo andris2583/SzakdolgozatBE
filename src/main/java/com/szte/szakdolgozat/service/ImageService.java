@@ -1,12 +1,7 @@
 package com.szte.szakdolgozat.service;
-
-import com.szte.szakdolgozat.models.BatchImageRequest;
 import com.szte.szakdolgozat.models.Image;
 import com.szte.szakdolgozat.repository.ImageRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
