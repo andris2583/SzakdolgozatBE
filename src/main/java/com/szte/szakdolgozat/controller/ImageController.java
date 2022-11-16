@@ -147,4 +147,20 @@ public class ImageController {
         return imageTagger.generateTags(data);
     }
 
+    @PutMapping("/getSimilarImages")
+    public List<Image> getSimilarImages(@RequestBody List<String> tags){
+        List<Image> images = imageService.getAllImages();
+        images = images.stream().filter(image -> image.getTags().stream().distinct().filter(tags::contains).collect(Collectors.toSet()).size() > 1 ).toList();
+        images.forEach(image -> {
+            byte[] fileContent;
+            try {
+                fileContent = FileUtils.readFileToByteArray(new File(THUMBNAIL_PATH + image.getThumbnailName()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            image.setImgB64(Base64.getEncoder().encodeToString(fileContent));
+        });
+        return images;
+    }
+
 }
