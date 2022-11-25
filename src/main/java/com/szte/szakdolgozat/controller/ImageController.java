@@ -163,4 +163,9 @@ public class ImageController {
         return images;
     }
 
+    @PutMapping("/getImageCountWithTag")
+    public int getImageCountWithTag(@RequestBody String tag){
+        return imageService.getAllImages().stream().filter(image -> image.getTags().contains(tag)).toList().size();
+    }
+
 }
