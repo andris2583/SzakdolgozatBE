@@ -1,5 +1,10 @@
 package com.szte.szakdolgozat.models;
 
+import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Data
+@Document
 public class User{
     String username;
     String password;

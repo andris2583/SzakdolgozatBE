@@ -1,14 +1,14 @@
 package com.szte.szakdolgozat.controller;
 
-import com.szte.szakdolgozat.models.BatchImageRequest;
 import com.szte.szakdolgozat.models.Image;
 import com.szte.szakdolgozat.models.Tag;
+import com.szte.szakdolgozat.models.request.BatchImageRequest;
+import com.szte.szakdolgozat.models.request.RequestOrderType;
+import com.szte.szakdolgozat.models.request.RequestTagType;
 import com.szte.szakdolgozat.service.ImageService;
-
 import com.szte.szakdolgozat.service.TagService;
 import com.szte.szakdolgozat.util.ImageTagger;
 import lombok.AllArgsConstructor;
-
 import net.coobird.thumbnailator.Thumbnailator;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -17,8 +17,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.tensorflow.op.math.Imag;
-
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -43,14 +41,36 @@ public class ImageController {
     private final ImageTagger imageTagger;
 
     @PutMapping("/getAll")
-    public List<Image> getAllImages(@RequestBody BatchImageRequest request){
+    public List<Image> getAllImages(@RequestBody BatchImageRequest request) {
         List<Image> images = imageService.getAllImages();
-        if (!Objects.equals(request.getTag(), "all")){
-            images = images.stream().filter(image -> image.getTags().contains(request.getTag())).collect(Collectors.toList());
+        //Filtering by tags
+        if (!request.getTags().contains("all")) {
+            if (request.getRequestTagType().equals(RequestTagType.AND)) {
+                images = images.stream().filter(image -> new HashSet<>(request.getTags()).containsAll(image.getTags())).collect(Collectors.toList());
+            } else {
+                images = images.stream().filter(image -> !Collections.disjoint(request.getTags(), image.getTags())).collect(Collectors.toList());
+            }
         }
-        int from = Math.min(request.getPageCount()*request.getBatchSize(),images.size());
-        int to = Math.min(request.getPageCount()*request.getBatchSize()+ request.getBatchSize(),images.size());
-        images = images.subList(from,to);
+        //Sorting
+        if (request.getRequestOrderByType() != null && request.getRequestOrderType() != null) {
+            switch (request.getRequestOrderByType()) {
+                case TIME -> {
+                    images = images.stream().sorted(Comparator.comparing(Image::getUploaded).reversed()).collect(Collectors.toList());
+                }
+                case ALPHABETICAL -> {
+                    images = images.stream().sorted(Comparator.comparing(Image::getName).reversed()).collect(Collectors.toList());
+                }
+                case POPULAR -> {
+                    //TODO do like ordering
+                }
+            }
+            if (request.getRequestOrderType() == RequestOrderType.ASC) {
+                Collections.reverse(images);
+            }
+        }
+        int from = Math.min(request.getPageCount() * request.getBatchSize(), images.size());
+        int to = Math.min(request.getPageCount() * request.getBatchSize() + request.getBatchSize(), images.size());
+        images = images.subList(from, to);
         images.forEach(image -> {
             byte[] fileContent;
             try {
@@ -64,16 +84,16 @@ public class ImageController {
     }
 
     @GetMapping("/get/{id}")
-    public Image getImageById(@PathVariable String id){
+    public Image getImageById(@PathVariable String id) {
         Image image = imageService.getImageById(id).orElse(null);
         return image;
     }
 
     @PutMapping("/insert")
-    public Image insertImage(@RequestBody Image image){
+    public Image insertImage(@RequestBody Image image) {
         image.setExtension(FilenameUtils.getExtension(image.getName()));
         image.setName(FilenameUtils.getBaseName(image.getName()));
-        byte[] data = Base64.getDecoder().decode(image.getImgB64().replaceFirst("data:image/png;base64,",""));
+        byte[] data = Base64.getDecoder().decode(image.getImgB64().replaceFirst("data:image/png;base64,", ""));
         image.setImgB64(null);
         Image insertedImage = imageService.insertImage(image);
         try (OutputStream stream = new FileOutputStream(IMAGE_PATH + insertedImage.getIdWithExtension())) {
@@ -82,8 +102,8 @@ public class ImageController {
             System.err.println(e);
         }
         try {
-            BufferedImage thumbnailImage = Thumbnailator.createThumbnail(new File(IMAGE_PATH + insertedImage.getIdWithExtension()),640,480);
-            ImageIO.write(thumbnailImage, "png", new File(THUMBNAIL_PATH + insertedImage.getId()+".png"));
+            BufferedImage thumbnailImage = Thumbnailator.createThumbnail(new File(IMAGE_PATH + insertedImage.getIdWithExtension()), 640, 480);
+            ImageIO.write(thumbnailImage, "png", new File(THUMBNAIL_PATH + insertedImage.getId() + ".png"));
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ImageIO.write(thumbnailImage, "png", byteArrayOutputStream);
             byte[] fileContent = byteArrayOutputStream.toByteArray();
@@ -93,8 +113,8 @@ public class ImageController {
         }
         List<String> newTags = new ArrayList<>(insertedImage.getTags());
         newTags.removeAll(tagService.getAllTags().stream().map(Tag::getName).toList());
-        if (newTags.size() !=0){
-            for(String tagName : newTags){
+        if (newTags.size() != 0) {
+            for (String tagName : newTags) {
                 Tag tag = new Tag();
                 tag.setName(tagName);
                 tagService.insertTag(tag);
@@ -104,7 +124,7 @@ public class ImageController {
     }
 
     @PutMapping("/update")
-    public Image updateImage(@RequestBody Image image){
+    public Image updateImage(@RequestBody Image image) {
         return imageService.saveImage(image);
     }
 
@@ -115,7 +135,7 @@ public class ImageController {
         try {
             File file = new File(IMAGE_PATH + image.getIdWithExtension());
             Files.deleteIfExists(file.toPath());
-            file = new File(THUMBNAIL_PATH + image.getId()+".png");
+            file = new File(THUMBNAIL_PATH + image.getId() + ".png");
             Files.deleteIfExists(file.toPath());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -128,29 +148,28 @@ public class ImageController {
     public ResponseEntity<?> getImageData(@PathVariable String id) throws IOException {
         try {
             Image image = getImageById(id);
-            Path imagePath = Paths.get(IMAGE_PATH+image.getIdWithExtension());
-
-                ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(imagePath));
-                return ResponseEntity
-                        .ok()
-                        .contentLength(imagePath.toFile().length())
-                        .contentType(MediaType.IMAGE_JPEG)
-                        .body(resource);
+            Path imagePath = Paths.get(IMAGE_PATH + image.getIdWithExtension());
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(imagePath));
+            return ResponseEntity
+                    .ok()
+                    .contentLength(imagePath.toFile().length())
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(resource);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PutMapping("/getTags")
-    public List<String> getTags(@RequestBody String imageB64){
-        byte[] data = Base64.getDecoder().decode(imageB64.replaceFirst("data:image/png;base64,",""));
+    public List<String> getTags(@RequestBody String imageB64) {
+        byte[] data = Base64.getDecoder().decode(imageB64.replaceFirst("data:image/png;base64,", ""));
         return imageTagger.generateTags(data);
     }
 
     @PutMapping("/getSimilarImages")
-    public List<Image> getSimilarImages(@RequestBody List<String> tags){
+    public List<Image> getSimilarImages(@RequestBody List<String> tags) {
         List<Image> images = imageService.getAllImages();
-        images = images.stream().filter(image -> image.getTags().stream().distinct().filter(tags::contains).collect(Collectors.toSet()).size() > 1 ).toList();
+        images = images.stream().filter(image -> image.getTags().stream().distinct().filter(tags::contains).collect(Collectors.toSet()).size() > 1).toList();
         images.forEach(image -> {
             byte[] fileContent;
             try {
@@ -164,7 +183,7 @@ public class ImageController {
     }
 
     @PutMapping("/getImageCountWithTag")
-    public int getImageCountWithTag(@RequestBody String tag){
+    public int getImageCountWithTag(@RequestBody String tag) {
         return imageService.getAllImages().stream().filter(image -> image.getTags().contains(tag)).toList().size();
     }
 

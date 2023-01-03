@@ -16,17 +16,17 @@ public class TagController {
     private final TagService tagService;
 
     @GetMapping("/getAll")
-    public List<Tag> getAllCategories(){
+    public List<Tag> getAllCategories() {
         return tagService.getAllTags();
     }
 
     @PutMapping("/insert")
-    public Tag insertTag(@RequestParam Tag tag){
+    public Tag insertTag(@RequestParam Tag tag) {
         return tagService.insertTag(tag);
     }
 
     @DeleteMapping("/delete")
-    public void deleteTag(@RequestBody Tag tag){
+    public void deleteTag(@RequestBody Tag tag) {
         tagService.deleteTag(tag);
     }
 }
