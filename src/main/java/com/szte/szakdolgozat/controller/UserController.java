@@ -1,10 +1,15 @@
 package com.szte.szakdolgozat.controller;
 
+import com.szte.szakdolgozat.models.Collection;
+import com.szte.szakdolgozat.models.CollectionType;
+import com.szte.szakdolgozat.models.Privacy;
 import com.szte.szakdolgozat.models.User;
+import com.szte.szakdolgozat.service.CollectionService;
 import com.szte.szakdolgozat.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -14,17 +19,24 @@ import java.util.List;
 public class UserController {
 
     UserService userService;
+    CollectionService collectionService;
 
     @PutMapping("/login")
-    public boolean login(@RequestBody User user) {
+    public User login(@RequestBody User user) {
         List<User> users = userService.getAllUsers().stream().filter(tempUser -> tempUser.getUsername().equals(user.getUsername()) && tempUser.getPassword().equals(user.getPassword())).toList();
-        return users.size() > 0;
+        return users.size() == 0 ? null : users.get(0);
     }
 
     @PutMapping("/register")
     public User register(@RequestBody User user) {
         List<User> users = userService.getAllUsers().stream().filter(tempUser -> tempUser.getUsername().equals(user.getUsername()) && tempUser.getPassword().equals(user.getPassword())).toList();
-        return users.size() == 0 ? userService.insertUser(user) : null;
+        if (users.size() == 0) {
+            User insertedUser = this.userService.insertUser(user);
+            this.collectionService.insertCollection(new Collection("Favourites", Collections.emptySet(), insertedUser.getId(), Privacy.PRIVATE, CollectionType.FAVOURITE));
+            return insertedUser;
+        } else {
+            return null;
+        }
     }
 
     @PutMapping("/get")

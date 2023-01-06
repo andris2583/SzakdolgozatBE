@@ -50,6 +50,14 @@ public class ImageController {
             } else {
                 images = images.stream().filter(image -> !Collections.disjoint(request.getTags(), image.getTags())).collect(Collectors.toList());
             }
+        }//Filtering
+        if (request.getRequestFilter() != null) {
+            if (request.getRequestFilter().getNameFilterString() != null) {
+                images = images.stream().filter(image -> image.getName().toLowerCase().contains(request.getRequestFilter().getNameFilterString().toLowerCase())).collect(Collectors.toList());
+            }
+            if (request.getRequestFilter().getMaxCount() != null) {
+                images = images.subList(0, Math.min(request.getRequestFilter().getMaxCount(), images.size()));
+            }
         }
         //Sorting
         if (request.getRequestOrderByType() != null && request.getRequestOrderType() != null) {
@@ -68,9 +76,11 @@ public class ImageController {
                 Collections.reverse(images);
             }
         }
-        int from = Math.min(request.getPageCount() * request.getBatchSize(), images.size());
-        int to = Math.min(request.getPageCount() * request.getBatchSize() + request.getBatchSize(), images.size());
-        images = images.subList(from, to);
+        if (request.getBatchSize() != -1) {
+            int from = Math.min(request.getPageCount() * request.getBatchSize(), images.size());
+            int to = Math.min(request.getPageCount() * request.getBatchSize() + request.getBatchSize(), images.size());
+            images = images.subList(from, to);
+        }
         images.forEach(image -> {
             byte[] fileContent;
             try {
