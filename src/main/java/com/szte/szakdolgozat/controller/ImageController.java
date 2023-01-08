@@ -1,16 +1,17 @@
 package com.szte.szakdolgozat.controller;
 
+import com.szte.szakdolgozat.models.Collection;
 import com.szte.szakdolgozat.models.Image;
 import com.szte.szakdolgozat.models.Tag;
 import com.szte.szakdolgozat.models.request.BatchImageRequest;
 import com.szte.szakdolgozat.models.request.RequestOrderType;
 import com.szte.szakdolgozat.models.request.RequestTagType;
+import com.szte.szakdolgozat.service.CollectionService;
 import com.szte.szakdolgozat.service.ImageService;
 import com.szte.szakdolgozat.service.TagService;
 import com.szte.szakdolgozat.util.ImageTagger;
 import lombok.AllArgsConstructor;
 import net.coobird.thumbnailator.Thumbnailator;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 
 import static com.szte.szakdolgozat.util.Constants.IMAGE_PATH;
 import static com.szte.szakdolgozat.util.Constants.THUMBNAIL_PATH;
+import static com.szte.szakdolgozat.util.ImageUtils.loadImageThumbnailData;
 
 @RestController
 @AllArgsConstructor
@@ -39,6 +41,8 @@ public class ImageController {
 
     private final TagService tagService;
     private final ImageTagger imageTagger;
+
+    private final CollectionService collectionService;
 
     @PutMapping("/getAll")
     public List<Image> getAllImages(@RequestBody BatchImageRequest request) {
@@ -57,6 +61,13 @@ public class ImageController {
             }
             if (request.getRequestFilter().getMaxCount() != null) {
                 images = images.subList(0, Math.min(request.getRequestFilter().getMaxCount(), images.size()));
+            }
+
+        }
+        if (request.getCollectionId() != null) {
+            Collection collection = collectionService.getCollectionById(request.getCollectionId()).orElse(null);
+            if (collection != null) {
+                images = images.stream().filter(image -> collection.getImageIds().contains(image.getId())).toList();
             }
         }
         //Sorting
@@ -81,15 +92,7 @@ public class ImageController {
             int to = Math.min(request.getPageCount() * request.getBatchSize() + request.getBatchSize(), images.size());
             images = images.subList(from, to);
         }
-        images.forEach(image -> {
-            byte[] fileContent;
-            try {
-                fileContent = FileUtils.readFileToByteArray(new File(THUMBNAIL_PATH + image.getThumbnailName()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            image.setImgB64(Base64.getEncoder().encodeToString(fileContent));
-        });
+        loadImageThumbnailData(images);
         return images;
     }
 
@@ -98,6 +101,15 @@ public class ImageController {
         Image image = imageService.getImageById(id).orElse(null);
         return image;
     }
+
+    @PutMapping("/getImagesByIds")
+    public List<Image> getImagesByIds(@RequestBody List<String> imageIds) {
+        List<Image> images = imageService.getAllImages();
+        images = images.stream().filter(tempImage -> imageIds.contains(tempImage.getId())).collect(Collectors.toList());
+        loadImageThumbnailData(images);
+        return images;
+    }
+
 
     @PutMapping("/insert")
     public Image insertImage(@RequestBody Image image) {
@@ -180,15 +192,7 @@ public class ImageController {
     public List<Image> getSimilarImages(@RequestBody List<String> tags) {
         List<Image> images = imageService.getAllImages();
         images = images.stream().filter(image -> image.getTags().stream().distinct().filter(tags::contains).collect(Collectors.toSet()).size() > 1).toList();
-        images.forEach(image -> {
-            byte[] fileContent;
-            try {
-                fileContent = FileUtils.readFileToByteArray(new File(THUMBNAIL_PATH + image.getThumbnailName()));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            image.setImgB64(Base64.getEncoder().encodeToString(fileContent));
-        });
+        loadImageThumbnailData(images);
         return images;
     }
 
