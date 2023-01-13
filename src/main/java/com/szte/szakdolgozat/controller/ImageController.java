@@ -115,7 +115,8 @@ public class ImageController {
     public Image insertImage(@RequestBody Image image) {
         image.setExtension(FilenameUtils.getExtension(image.getName()));
         image.setName(FilenameUtils.getBaseName(image.getName()));
-        byte[] data = Base64.getDecoder().decode(image.getImgB64().replaceFirst("data:image/png;base64,", ""));
+        String dataString = image.getImgB64().replaceFirst("data:image/.*;base64,", "");
+        byte[] data = Base64.getDecoder().decode(dataString);
         image.setImgB64(null);
         Image insertedImage = imageService.insertImage(image);
         try (OutputStream stream = new FileOutputStream(IMAGE_PATH + insertedImage.getIdWithExtension())) {
@@ -184,8 +185,31 @@ public class ImageController {
 
     @PutMapping("/getTags")
     public List<String> getTags(@RequestBody String imageB64) {
-        byte[] data = Base64.getDecoder().decode(imageB64.replaceFirst("data:image/png;base64,", ""));
+        String dataString = imageB64.replaceFirst("data:image/.*;base64,", "");
+        byte[] data = Base64.getDecoder().decode(dataString);
         return imageTagger.generateTags(data);
+    }
+
+    //TODO
+    @GetMapping(value = "/getThumbnailImageForUpload/{imageB64}",
+            produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<?> getThumbnailImageForUpload(@PathVariable String imageB64) {
+        try {
+            String dataString = imageB64.replaceFirst("data:image/.*;base64,", "");
+            byte[] data = Base64.getDecoder().decode(dataString);
+            BufferedImage fullSizeImage = ImageIO.read(new ByteArrayInputStream(data));
+            BufferedImage thumbnailImage = Thumbnailator.createThumbnail(fullSizeImage, 640, 480);
+            ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+            ImageIO.write(thumbnailImage, "jpg", byteStream);
+            byte[] bytes = byteStream.toByteArray();
+            return ResponseEntity
+                    .ok()
+                    .contentLength(bytes.length)
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(bytes);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @PutMapping("/getSimilarImages")
