@@ -183,6 +183,23 @@ public class ImageController {
         }
     }
 
+    @GetMapping(value = "/getImageThumbnailData/{id}",
+            produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<?> getImageThumbnailData(@PathVariable String id) throws IOException {
+        try {
+            Image image = getImageById(id);
+            Path imagePath = Paths.get(THUMBNAIL_PATH + image.getId() + ".png");
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(imagePath));
+            return ResponseEntity
+                    .ok()
+                    .contentLength(imagePath.toFile().length())
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @PutMapping("/getTags")
     public List<String> getTags(@RequestBody String imageB64) {
         String dataString = imageB64.replaceFirst("data:image/.*;base64,", "");
