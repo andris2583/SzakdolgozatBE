@@ -160,6 +160,9 @@ public class ImageController {
             Files.deleteIfExists(file.toPath());
             file = new File(THUMBNAIL_PATH + image.getId() + ".png");
             Files.deleteIfExists(file.toPath());
+            collectionService.getAllCollections().forEach(collection -> {
+                collection.getImageIds().removeIf(tempImage -> tempImage.equals(id));
+            });
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
