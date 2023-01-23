@@ -1,6 +1,6 @@
 package com.szte.szakdolgozat.controller;
 
-import com.szte.szakdolgozat.models.Collection;
+import com.szte.szakdolgozat.model.Collection;
 import com.szte.szakdolgozat.service.CollectionService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package com.szte.szakdolgozat.models.request;
+package com.szte.szakdolgozat.model.request;
 
 import lombok.Data;
 

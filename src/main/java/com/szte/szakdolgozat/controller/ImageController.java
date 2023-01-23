@@ -1,11 +1,11 @@
 package com.szte.szakdolgozat.controller;
 
-import com.szte.szakdolgozat.models.Collection;
-import com.szte.szakdolgozat.models.Image;
-import com.szte.szakdolgozat.models.Tag;
-import com.szte.szakdolgozat.models.request.BatchImageRequest;
-import com.szte.szakdolgozat.models.request.RequestOrderType;
-import com.szte.szakdolgozat.models.request.RequestTagType;
+import com.szte.szakdolgozat.model.Collection;
+import com.szte.szakdolgozat.model.Image;
+import com.szte.szakdolgozat.model.Tag;
+import com.szte.szakdolgozat.model.request.BatchImageRequest;
+import com.szte.szakdolgozat.model.request.RequestOrderType;
+import com.szte.szakdolgozat.model.request.RequestTagType;
 import com.szte.szakdolgozat.service.CollectionService;
 import com.szte.szakdolgozat.service.ImageService;
 import com.szte.szakdolgozat.service.TagService;

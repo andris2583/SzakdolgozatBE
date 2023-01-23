@@ -1,6 +1,6 @@
 package com.szte.szakdolgozat.controller;
 
-import com.szte.szakdolgozat.models.Tag;
+import com.szte.szakdolgozat.model.Tag;
 import com.szte.szakdolgozat.service.TagService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;

@@ -1,9 +1,9 @@
 package com.szte.szakdolgozat.controller;
 
-import com.szte.szakdolgozat.models.Collection;
-import com.szte.szakdolgozat.models.CollectionType;
-import com.szte.szakdolgozat.models.Privacy;
-import com.szte.szakdolgozat.models.User;
+import com.szte.szakdolgozat.model.Collection;
+import com.szte.szakdolgozat.model.CollectionType;
+import com.szte.szakdolgozat.model.Privacy;
+import com.szte.szakdolgozat.model.User;
 import com.szte.szakdolgozat.service.CollectionService;
 import com.szte.szakdolgozat.service.UserService;
 import lombok.AllArgsConstructor;

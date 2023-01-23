@@ -1,11 +1,12 @@
-package com.szte.szakdolgozat.models;
+package com.szte.szakdolgozat.model;
 
 import lombok.Data;
-import org.aspectj.apache.bcel.classfile.Unknown;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Data
 @Document
@@ -20,7 +21,7 @@ public class Image {
     private String imgB64;
     private Object properties;
 
-    public String getIdWithExtension(){
+    public String getIdWithExtension() {
         return this.id + "." + this.extension;
     }
 

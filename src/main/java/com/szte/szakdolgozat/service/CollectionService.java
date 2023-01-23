@@ -1,6 +1,6 @@
 package com.szte.szakdolgozat.service;
 
-import com.szte.szakdolgozat.models.Collection;
+import com.szte.szakdolgozat.model.Collection;
 import com.szte.szakdolgozat.repository.CollectionRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

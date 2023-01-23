@@ -1,9 +1,6 @@
 package com.szte.szakdolgozat;
 
-import com.szte.szakdolgozat.controller.TagController;
 import com.szte.szakdolgozat.controller.ImageController;
-import com.szte.szakdolgozat.models.Image;
-import com.szte.szakdolgozat.models.Tag;
 import com.szte.szakdolgozat.service.TagService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,24 +9,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 @SpringBootApplication
 @EnableMongoRepositories
 public class SzakdolgozatApplication {
 
 
-	public static void main(String[] args) {
-		SpringApplication.run(SzakdolgozatApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SzakdolgozatApplication.class, args);
+    }
 
-	@Bean
-	CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, TagService tagService){
-		return args -> {
-
+    @Bean
+    CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, TagService tagService) {
+        return args -> {
 //			//INIT DB
 //
 //			File folder = new File("C:/Users/Andras/Desktop/Egyetem/Szakdolgozat/BackEnd/szakdolgozat/src/main/resources/mock-imgs/");
@@ -70,9 +61,7 @@ public class SzakdolgozatApplication {
 //				tag.setName(cat);
 //				tagController.insertCategory(tag);
 //			}
-
-			//TAG IMAGES IN DB AND INSERT THOSE TAGS
-
+            //TAG IMAGES IN DB AND INSERT THOSE TAGS
 //			List<Image> imageList = imageController.getAllImages("all");
 //			Set<String> tags = new HashSet<>() {
 //			};
@@ -89,8 +78,7 @@ public class SzakdolgozatApplication {
 //				tagService.insertTag(tag);
 //			}
 //			System.out.println("Finished");
-
-		};
-	}
+        };
+    }
 
 }

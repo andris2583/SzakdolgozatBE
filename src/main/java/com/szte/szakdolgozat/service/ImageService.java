@@ -1,5 +1,6 @@
 package com.szte.szakdolgozat.service;
-import com.szte.szakdolgozat.models.Image;
+
+import com.szte.szakdolgozat.model.Image;
 import com.szte.szakdolgozat.repository.ImageRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,18 +14,19 @@ public class ImageService {
 
     private final ImageRepository imageRepository;
 
-    public List<Image> getAllImages(){
+    public List<Image> getAllImages() {
         return imageRepository.findAll();
     }
-    public Optional<Image> getImageById(String id){
+
+    public Optional<Image> getImageById(String id) {
         return imageRepository.findById(id);
     }
 
-    public Image insertImage(Image image){
+    public Image insertImage(Image image) {
         return imageRepository.insert(image);
     }
 
-    public void deleteImage(Image image){
+    public void deleteImage(Image image) {
         imageRepository.delete(image);
     }
 

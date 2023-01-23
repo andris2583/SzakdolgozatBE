@@ -1,4 +1,4 @@
-package com.szte.szakdolgozat.models;
+package com.szte.szakdolgozat.model;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

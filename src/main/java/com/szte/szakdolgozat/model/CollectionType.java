@@ -1,4 +1,4 @@
-package com.szte.szakdolgozat.models;
+package com.szte.szakdolgozat.model;
 
 public enum CollectionType {
     FAVOURITE, CUSTOM

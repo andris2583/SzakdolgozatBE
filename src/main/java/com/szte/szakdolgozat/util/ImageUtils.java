@@ -1,6 +1,6 @@
 package com.szte.szakdolgozat.util;
 
-import com.szte.szakdolgozat.models.Image;
+import com.szte.szakdolgozat.model.Image;
 import org.apache.commons.io.FileUtils;
 
 import javax.imageio.ImageIO;
