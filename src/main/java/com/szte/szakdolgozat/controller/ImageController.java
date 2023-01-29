@@ -48,11 +48,11 @@ public class ImageController {
     public List<Image> getAllImages(@RequestBody BatchImageRequest request) {
         List<Image> images = imageService.getAllImages();
         //Filtering by tags
-        if (!request.getTags().contains("all")) {
+        if (request.getTags().size() != 0) {
             if (request.getRequestTagType().equals(RequestTagType.AND)) {
-                images = images.stream().filter(image -> new HashSet<>(request.getTags()).containsAll(image.getTags())).collect(Collectors.toList());
+                images = images.stream().filter(image -> new HashSet<>(image.getTags()).containsAll(new HashSet<>(request.getTags()))).collect(Collectors.toList());
             } else {
-                images = images.stream().filter(image -> !Collections.disjoint(request.getTags(), image.getTags())).collect(Collectors.toList());
+                images = images.stream().filter(image -> image.getTags().stream().anyMatch(tag -> request.getTags().contains(tag))).collect(Collectors.toList());
             }
         }//Filtering
         if (request.getRequestFilter() != null) {
@@ -81,6 +81,9 @@ public class ImageController {
                 }
                 case POPULAR -> {
                     //TODO do like ordering
+                }
+                case RANDOM -> {
+                    Collections.shuffle(images);
                 }
             }
             if (request.getRequestOrderType() == RequestOrderType.ASC) {
