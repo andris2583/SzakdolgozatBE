@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -23,7 +24,7 @@ public class CollectionController {
     @GetMapping("/getCollectionsByUserId/{id}")
     public List<Collection> getCollectionsByUserId(@PathVariable String id) {
         List<Collection> collections = this.collectionService.getAllCollections();
-        return collections.stream().filter(collection -> Objects.equals(collection.getUserId(), id)).toList();
+        return collections.stream().filter(collection -> Objects.equals(collection.getUserId(), id)).collect(Collectors.toList());
     }
 
     @GetMapping("/getCollectionsById/{id}")

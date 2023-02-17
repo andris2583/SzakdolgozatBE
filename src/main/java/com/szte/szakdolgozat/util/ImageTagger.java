@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -75,6 +76,6 @@ public class ImageTagger {
         for (float r : resultArray) {
             resultList.add(r);
         }
-        return resultList.stream().sorted(Comparator.reverseOrder()).limit(5).map(value -> tagIdNameMap.get(tagIds.get(resultList.indexOf(value)))).toList();
+        return resultList.stream().sorted(Comparator.reverseOrder()).limit(5).map(value -> tagIdNameMap.get(tagIds.get(resultList.indexOf(value)))).collect(Collectors.toList());
     }
 }

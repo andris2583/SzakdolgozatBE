@@ -20,6 +20,8 @@ public class Image {
     private Date uploaded = new Date(System.currentTimeMillis());
     private String imgB64;
     private Object properties;
+    private String ownerId;
+    private Privacy privacy;
 
     public String getIdWithExtension() {
         return this.id + "." + this.extension;

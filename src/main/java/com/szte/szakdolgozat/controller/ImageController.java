@@ -2,6 +2,7 @@ package com.szte.szakdolgozat.controller;
 
 import com.szte.szakdolgozat.model.Collection;
 import com.szte.szakdolgozat.model.Image;
+import com.szte.szakdolgozat.model.Privacy;
 import com.szte.szakdolgozat.model.Tag;
 import com.szte.szakdolgozat.model.request.BatchImageRequest;
 import com.szte.szakdolgozat.model.request.RequestOrderType;
@@ -10,6 +11,7 @@ import com.szte.szakdolgozat.service.CollectionService;
 import com.szte.szakdolgozat.service.ImageService;
 import com.szte.szakdolgozat.service.TagService;
 import com.szte.szakdolgozat.util.ImageTagger;
+import com.szte.szakdolgozat.util.ImageUtils;
 import lombok.AllArgsConstructor;
 import net.coobird.thumbnailator.Thumbnailator;
 import org.apache.commons.io.FilenameUtils;
@@ -41,7 +43,6 @@ public class ImageController {
 
     private final TagService tagService;
     private final ImageTagger imageTagger;
-
     private final CollectionService collectionService;
 
     @PutMapping("/getAll")
@@ -54,7 +55,12 @@ public class ImageController {
             } else {
                 images = images.stream().filter(image -> image.getTags().stream().anyMatch(tag -> request.getTags().contains(tag))).collect(Collectors.toList());
             }
-        }//Filtering
+        }
+        //Filtering by access
+        if (request.getRequestUserId() != null) {
+            images = images.stream().filter(image -> Objects.equals(image.getOwnerId(), request.getRequestUserId()) || image.getPrivacy() == Privacy.PUBLIC).collect(Collectors.toList());
+        }
+        //Filtering
         if (request.getRequestFilter() != null) {
             if (request.getRequestFilter().getNameFilterString() != null) {
                 images = images.stream().filter(image -> image.getName().toLowerCase().contains(request.getRequestFilter().getNameFilterString().toLowerCase())).collect(Collectors.toList());
@@ -62,12 +68,14 @@ public class ImageController {
             if (request.getRequestFilter().getMaxCount() != null) {
                 images = images.subList(0, Math.min(request.getRequestFilter().getMaxCount(), images.size()));
             }
-
+            if (request.getRequestFilter().getOwnerId() != null) {
+                images = images.stream().filter(image -> Objects.equals(image.getOwnerId(), request.getRequestFilter().getOwnerId())).collect(Collectors.toList());
+            }
         }
         if (request.getCollectionId() != null) {
             Collection collection = collectionService.getCollectionById(request.getCollectionId()).orElse(null);
             if (collection != null) {
-                images = images.stream().filter(image -> collection.getImageIds().contains(image.getId())).toList();
+                images = images.stream().filter(image -> collection.getImageIds().contains(image.getId())).collect(Collectors.toList());
             }
         }
         //Sorting
@@ -189,6 +197,25 @@ public class ImageController {
         }
     }
 
+    @GetMapping(value = "/getImageDataHalfRes/{id}",
+            produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<?> getImageDataHalfRes(@PathVariable String id) throws IOException {
+        try {
+            Image image = getImageById(id);
+            Path imagePath = Paths.get(IMAGE_PATH + image.getIdWithExtension());
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(imagePath));
+            BufferedImage fullSizeImage = ImageIO.read(new ByteArrayInputStream(resource.getByteArray()));
+            BufferedImage thumbnailImage = Thumbnailator.createThumbnail(fullSizeImage, (int) (fullSizeImage.getWidth() * 0.5), (int) (fullSizeImage.getHeight() * 0.5));
+            return ResponseEntity
+                    .ok()
+                    .contentLength(imagePath.toFile().length())
+                    .contentType(MediaType.IMAGE_PNG)
+                    .body(ImageUtils.toByteArray(thumbnailImage, "png"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @GetMapping(value = "/getImageThumbnailData/{id}",
             produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<?> getImageThumbnailData(@PathVariable String id) throws IOException {
@@ -238,7 +265,7 @@ public class ImageController {
     @PutMapping("/getSimilarImages")
     public List<Image> getSimilarImages(@RequestBody List<String> tags) {
         List<Image> images = imageService.getAllImages();
-        images = images.stream().filter(image -> image.getTags().stream().distinct().filter(tags::contains).collect(Collectors.toSet()).size() > 1).toList();
+        images = images.stream().filter(image -> image.getTags().stream().distinct().filter(tags::contains).collect(Collectors.toSet()).size() > 1).collect(Collectors.toList());
         loadImageThumbnailData(images);
         return images;
     }

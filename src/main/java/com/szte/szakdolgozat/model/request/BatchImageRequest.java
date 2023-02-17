@@ -14,4 +14,5 @@ public class BatchImageRequest {
     private Integer pageCount;
     private RequestFilter requestFilter;
     private String collectionId;
+    private String requestUserId;
 }

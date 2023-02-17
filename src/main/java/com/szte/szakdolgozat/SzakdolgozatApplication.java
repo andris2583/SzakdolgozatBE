@@ -1,6 +1,7 @@
 package com.szte.szakdolgozat;
 
 import com.szte.szakdolgozat.controller.ImageController;
+import com.szte.szakdolgozat.service.ImageService;
 import com.szte.szakdolgozat.service.TagService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -19,8 +20,14 @@ public class SzakdolgozatApplication {
     }
 
     @Bean
-    CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, TagService tagService) {
+    CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, TagService tagService, ImageService imageService) {
         return args -> {
+//            var images = imageService.getAllImages();
+//            for (com.szte.szakdolgozat.model.Image image : images) {
+//                image.setImgB64(null);
+//                image.setOwnerId("63b8413b8af8d21ef3c81859");
+//                imageService.saveImage(image);
+//            }
 //			//INIT DB
 //
 //			File folder = new File("C:/Users/Andras/Desktop/Egyetem/Szakdolgozat/BackEnd/szakdolgozat/src/main/resources/mock-imgs/");

@@ -6,4 +6,5 @@ import lombok.Data;
 public class RequestFilter {
     private String nameFilterString;
     private Integer maxCount;
+    private String ownerId;
 }

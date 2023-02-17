@@ -7,6 +7,7 @@ import com.szte.szakdolgozat.model.User;
 import com.szte.szakdolgozat.service.CollectionService;
 import com.szte.szakdolgozat.service.ImageService;
 import com.szte.szakdolgozat.service.TagService;
+import com.szte.szakdolgozat.util.ImageUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,6 +72,29 @@ public class DashboardController {
                     new ArrayList<String>(finalFavouriteTags.keySet()).get(4),
             };
         }
+    }
+
+    @PutMapping("/getSimilarToUserImages")
+    public List<Image> getSimilarToUserImages(@RequestBody User user) {
+        List<Image> allImages = this.imageService.getAllImages();
+        List<Image> userImages = allImages.stream().filter(image -> image.getOwnerId().equals(user.getId())).toList();
+        List<Image> notUserImages = allImages.stream().filter(image -> !image.getOwnerId().equals(user.getId())).toList();
+        List<Image> returnImages = new ArrayList<>();
+        int sameTagCount = 5;
+        while (sameTagCount > 0) {
+            int finalSameTagCount = sameTagCount;
+            userImages.forEach(userImage -> {
+                notUserImages.forEach(notUserImage -> {
+                    if (userImage.getTags().stream().filter(userImageTag -> notUserImage.getTags().contains(userImageTag)).toList().size() == finalSameTagCount
+                            && !returnImages.contains(notUserImage)) {
+                        returnImages.add(notUserImage);
+                    }
+                });
+            });
+            sameTagCount--;
+        }
+        ImageUtils.loadImageThumbnailData(returnImages);
+        return returnImages;
     }
 
     public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
