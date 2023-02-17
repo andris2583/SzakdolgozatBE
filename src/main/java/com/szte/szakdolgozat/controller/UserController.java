@@ -7,10 +7,23 @@ import com.szte.szakdolgozat.model.User;
 import com.szte.szakdolgozat.service.CollectionService;
 import com.szte.szakdolgozat.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+
+import static com.szte.szakdolgozat.util.Constants.PROFILE_PATH;
 
 @RestController
 @AllArgsConstructor
@@ -43,5 +56,35 @@ public class UserController {
     public User getUser(@RequestBody String id) {
         return userService.getUserById(id).orElse(null);
     }
+
+    @PutMapping("/uploadProfilePicture")
+    public boolean insertImage(@RequestBody String[] array) {
+        String base64 = array[0].replaceFirst("data:image/.*;base64,", "");
+        byte[] data = Base64.getDecoder().decode(base64);
+        try (OutputStream stream = new FileOutputStream(PROFILE_PATH + array[1] + ".png")) {
+            stream.write(data);
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+        return true;
+    }
+
+    @GetMapping(value = "/getProfileData/{id}",
+            produces = MediaType.IMAGE_JPEG_VALUE)
+    public ResponseEntity<?> getProfileData(@PathVariable String id) throws IOException {
+        try {
+            Path imagePath = Paths.get(PROFILE_PATH + id + ".png");
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(imagePath));
+            return ResponseEntity
+                    .ok()
+                    .contentLength(imagePath.toFile().length())
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
 }
 

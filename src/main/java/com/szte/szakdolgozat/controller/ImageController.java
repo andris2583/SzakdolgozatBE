@@ -1,9 +1,7 @@
 package com.szte.szakdolgozat.controller;
 
 import com.szte.szakdolgozat.model.Collection;
-import com.szte.szakdolgozat.model.Image;
-import com.szte.szakdolgozat.model.Privacy;
-import com.szte.szakdolgozat.model.Tag;
+import com.szte.szakdolgozat.model.*;
 import com.szte.szakdolgozat.model.request.BatchImageRequest;
 import com.szte.szakdolgozat.model.request.RequestOrderType;
 import com.szte.szakdolgozat.model.request.RequestTagType;
@@ -273,6 +271,26 @@ public class ImageController {
     @PutMapping("/getImageCountWithTag")
     public int getImageCountWithTag(@RequestBody String tag) {
         return imageService.getAllImages().stream().filter(image -> image.getTags().contains(tag)).toList().size();
+    }
+
+    @GetMapping("/getCountByUser/{id}")
+    public int getCountByUser(@PathVariable String id) {
+        return this.imageService.getAllImages().stream().filter(image -> Objects.equals(image.getOwnerId(), id)).toList().size();
+    }
+
+    @GetMapping("/getLikesByUser/{id}")
+    public int getLikesByUser(@PathVariable String id) {
+        List<Image> images = this.imageService.getAllImages().stream().filter(image -> Objects.equals(image.getOwnerId(), id)).toList();
+        List<Collection> collections = this.collectionService.getAllCollections().stream().filter(collection -> collection.getType() == CollectionType.FAVOURITE && !Objects.equals(collection.getUserId(), id)).toList();
+        int imageInFavourite = 0;
+        for (Image image : images) {
+            for (Collection collection : collections) {
+                if (collection.getImageIds().contains(image.getId())) {
+                    imageInFavourite++;
+                }
+            }
+        }
+        return imageInFavourite;
     }
 
 }
