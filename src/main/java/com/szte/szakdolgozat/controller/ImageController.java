@@ -7,6 +7,7 @@ import com.szte.szakdolgozat.model.request.RequestOrderType;
 import com.szte.szakdolgozat.model.request.RequestTagType;
 import com.szte.szakdolgozat.service.CollectionService;
 import com.szte.szakdolgozat.service.ImageService;
+import com.szte.szakdolgozat.service.ImageViewMapService;
 import com.szte.szakdolgozat.service.TagService;
 import com.szte.szakdolgozat.util.ImageTagger;
 import com.szte.szakdolgozat.util.ImageUtils;
@@ -26,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.szte.szakdolgozat.util.Constants.IMAGE_PATH;
@@ -42,6 +44,8 @@ public class ImageController {
     private final TagService tagService;
     private final ImageTagger imageTagger;
     private final CollectionService collectionService;
+
+    private final ImageViewMapService imageViewMapService;
 
     @PutMapping("/getAll")
     public List<Image> getAllImages(@RequestBody BatchImageRequest request) {
@@ -86,7 +90,8 @@ public class ImageController {
                     images = images.stream().sorted(Comparator.comparing(Image::getName).reversed()).collect(Collectors.toList());
                 }
                 case POPULAR -> {
-                    //TODO do like ordering
+                    Map<String, Integer> map = this.imageViewMapService.getAllImageViewMaps().get(0).getImageViewMap();
+                    images = images.stream().sorted(Comparator.comparingInt(o -> map.get(o.getId()))).collect(Collectors.toList());
                 }
                 case RANDOM -> {
                     Collections.shuffle(images);
@@ -152,6 +157,9 @@ public class ImageController {
                 tagService.insertTag(tag);
             }
         }
+        ImageViewMap imageViewMap = this.imageViewMapService.getAllImageViewMaps().get(0);
+        imageViewMap.getImageViewMap().put(insertedImage.getId(), 0);
+        imageViewMapService.saveImageViewMap(imageViewMap);
         return insertedImage;
     }
 
@@ -172,6 +180,9 @@ public class ImageController {
             collectionService.getAllCollections().forEach(collection -> {
                 collection.getImageIds().removeIf(tempImage -> tempImage.equals(id));
             });
+            ImageViewMap imageViewMap = this.imageViewMapService.getAllImageViewMaps().get(0);
+            imageViewMap.getImageViewMap().remove(id);
+            imageViewMapService.saveImageViewMap(imageViewMap);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -278,16 +289,49 @@ public class ImageController {
         return this.imageService.getAllImages().stream().filter(image -> Objects.equals(image.getOwnerId(), id)).toList().size();
     }
 
+    @GetMapping("/getViewsByUser/{id}")
+    public int getViewsByUser(@PathVariable String id) {
+        List<String> userImageIds = this.imageService.getAllImages().stream().filter(image -> Objects.equals(image.getOwnerId(), id)).map(Image::getId).toList();
+        Map<String, Integer> map = this.imageViewMapService.getAllImageViewMaps().get(0).getImageViewMap();
+        AtomicInteger count = new AtomicInteger();
+        userImageIds.forEach(imageId -> {
+            if (map.containsKey(imageId)) {
+                count.addAndGet(map.get(imageId));
+            }
+        });
+        return count.get();
+    }
+
     @GetMapping("/getLikesByUser/{id}")
     public int getLikesByUser(@PathVariable String id) {
         List<Image> images = this.imageService.getAllImages().stream().filter(image -> Objects.equals(image.getOwnerId(), id)).toList();
-        List<Collection> collections = this.collectionService.getAllCollections().stream().filter(collection -> collection.getType() == CollectionType.FAVOURITE && !Objects.equals(collection.getUserId(), id)).toList();
+        List<Collection> collections = this.collectionService.getAllCollections().stream().filter(collection -> collection.getType() == CollectionType.FAVOURITE).toList();
         int imageInFavourite = 0;
         for (Image image : images) {
             for (Collection collection : collections) {
                 if (collection.getImageIds().contains(image.getId())) {
                     imageInFavourite++;
                 }
+            }
+        }
+        return imageInFavourite;
+    }
+
+    @GetMapping("/addViewToImage/{id}")
+    public int addViewToImage(@PathVariable String id) {
+        ImageViewMap imageViewMap = this.imageViewMapService.getAllImageViewMaps().get(0);
+        imageViewMap.getImageViewMap().put(id, imageViewMap.getImageViewMap().get(id) + 1);
+        imageViewMapService.saveImageViewMap(imageViewMap);
+        return imageViewMap.getImageViewMap().get(id);
+    }
+
+    @GetMapping("/getImageLikes/{id}")
+    public int getImageLikes(@PathVariable String id) {
+        List<Collection> collections = this.collectionService.getAllCollections().stream().filter(collection -> collection.getType() == CollectionType.FAVOURITE).toList();
+        int imageInFavourite = 0;
+        for (Collection collection : collections) {
+            if (collection.getImageIds().contains(id)) {
+                imageInFavourite++;
             }
         }
         return imageInFavourite;

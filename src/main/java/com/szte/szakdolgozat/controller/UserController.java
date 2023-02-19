@@ -6,13 +6,17 @@ import com.szte.szakdolgozat.model.Privacy;
 import com.szte.szakdolgozat.model.User;
 import com.szte.szakdolgozat.service.CollectionService;
 import com.szte.szakdolgozat.service.UserService;
+import com.szte.szakdolgozat.util.ImageUtils;
 import lombok.AllArgsConstructor;
+import net.coobird.thumbnailator.Thumbnailator;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -57,10 +61,18 @@ public class UserController {
         return userService.getUserById(id).orElse(null);
     }
 
+    @GetMapping("/getAll")
+    public List<User> getAll() {
+        return userService.getAllUsers();
+    }
+
     @PutMapping("/uploadProfilePicture")
-    public boolean insertImage(@RequestBody String[] array) {
+    public boolean uploadProfilePicture(@RequestBody String[] array) throws IOException {
         String base64 = array[0].replaceFirst("data:image/.*;base64,", "");
         byte[] data = Base64.getDecoder().decode(base64);
+        BufferedImage img = ImageIO.read(new ByteArrayInputStream(data));
+        BufferedImage profileImage = Thumbnailator.createThumbnail(img, 640, 360);
+        data = ImageUtils.toByteArray(profileImage, "png");
         try (OutputStream stream = new FileOutputStream(PROFILE_PATH + array[1] + ".png")) {
             stream.write(data);
         } catch (IOException e) {
@@ -81,7 +93,13 @@ public class UserController {
                     .contentType(MediaType.IMAGE_JPEG)
                     .body(resource);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            Path imagePath = Paths.get(PROFILE_PATH + "profile-alt.png");
+            ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(imagePath));
+            return ResponseEntity
+                    .ok()
+                    .contentLength(imagePath.toFile().length())
+                    .contentType(MediaType.IMAGE_JPEG)
+                    .body(resource);
         }
     }
 

@@ -2,6 +2,7 @@ package com.szte.szakdolgozat;
 
 import com.szte.szakdolgozat.controller.ImageController;
 import com.szte.szakdolgozat.service.ImageService;
+import com.szte.szakdolgozat.service.ImageViewMapService;
 import com.szte.szakdolgozat.service.TagService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -20,8 +21,16 @@ public class SzakdolgozatApplication {
     }
 
     @Bean
-    CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, TagService tagService, ImageService imageService) {
+    CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, TagService tagService, ImageService imageService, ImageViewMapService imageViewMapService) {
         return args -> {
+            //INIT imageViewMap
+//            var map = new HashMap<String, Integer>();
+//            imageService.getAllImages().forEach(image -> {
+//                map.put(image.getId(), 0);
+//            });
+//            var imageViewMap = new ImageViewMap();
+//            imageViewMap.setImageViewMap(map);
+//            imageViewMapService.insertImageViewMap(imageViewMap);
 //            var images = imageService.getAllImages();
 //            for (com.szte.szakdolgozat.model.Image image : images) {
 //                image.setImgB64(null);
