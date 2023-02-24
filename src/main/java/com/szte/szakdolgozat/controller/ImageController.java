@@ -1,5 +1,6 @@
 package com.szte.szakdolgozat.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.szte.szakdolgozat.model.Collection;
 import com.szte.szakdolgozat.model.*;
 import com.szte.szakdolgozat.model.request.BatchImageRequest;
@@ -72,6 +73,24 @@ public class ImageController {
             }
             if (request.getRequestFilter().getOwnerId() != null) {
                 images = images.stream().filter(image -> Objects.equals(image.getOwnerId(), request.getRequestFilter().getOwnerId())).collect(Collectors.toList());
+            }
+            if (request.getRequestFilter().getFromDate() != null) {
+                images = images.stream().filter(image -> image.getUploaded().getTime() > request.getRequestFilter().getFromDate().getTime()).collect(Collectors.toList());
+            }
+            if (request.getRequestFilter().getToDate() != null) {
+                images = images.stream().filter(image -> image.getUploaded().getTime() < request.getRequestFilter().getToDate().getTime()).collect(Collectors.toList());
+            }
+            if (request.getRequestFilter().getLatitude() != null && request.getRequestFilter().getLongitude() != null && request.getRequestFilter().getDistance() != null) {
+                images = images.stream().filter(image -> {
+                    Map props = new ObjectMapper().convertValue(image.getProperties(), Map.class);
+                    if (props.containsKey("latitude") && props.containsKey("longitude")) {
+                        double d = Math.sqrt(Math.pow(new Double(props.get("latitude").toString()) - request.getRequestFilter().getLatitude(), 2) + Math.pow(new Double(props.get("longitude").toString()) - request.getRequestFilter().getLongitude(), 2));
+                        if (d * 100000 < request.getRequestFilter().getDistance()) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }).collect(Collectors.toList());
             }
         }
         if (request.getCollectionId() != null) {
@@ -178,7 +197,8 @@ public class ImageController {
             file = new File(THUMBNAIL_PATH + image.getId() + ".png");
             Files.deleteIfExists(file.toPath());
             collectionService.getAllCollections().forEach(collection -> {
-                collection.getImageIds().removeIf(tempImage -> tempImage.equals(id));
+                collection.getImageIds().remove(id);
+                collectionService.saveCollection(collection);
             });
             ImageViewMap imageViewMap = this.imageViewMapService.getAllImageViewMaps().get(0);
             imageViewMap.getImageViewMap().remove(id);
