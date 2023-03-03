@@ -26,7 +26,7 @@ public class DashboardController {
 
     private static final String[][] seasonalTags =
             {
-                    {"Arctic ocean", "Snow", "Ice", "Frost", "Winter"},
+                    {"Christmas", "Snow", "Ice", "Frost", "Winter"},
                     {"Breakfast", "Yellow", "Food", "Spring", "Interaction"},
                     {"Sunlight", "Sunrise", "Beach", "Vacation", "Sand"},
                     {"Vegetable", "Produce", "Autumn", "Wildlife", "Wilderness"}

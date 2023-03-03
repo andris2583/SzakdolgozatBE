@@ -15,4 +15,5 @@ public class BatchImageRequest {
     private RequestFilter requestFilter;
     private String collectionId;
     private String requestUserId;
+    private Boolean loadThumbnails;
 }

@@ -75,10 +75,10 @@ public class ImageController {
                 images = images.stream().filter(image -> Objects.equals(image.getOwnerId(), request.getRequestFilter().getOwnerId())).collect(Collectors.toList());
             }
             if (request.getRequestFilter().getFromDate() != null) {
-                images = images.stream().filter(image -> image.getUploaded().getTime() > request.getRequestFilter().getFromDate().getTime()).collect(Collectors.toList());
+                images = images.stream().filter(image -> image.getUploaded().getTime() >= request.getRequestFilter().getFromDate().getTime()).collect(Collectors.toList());
             }
             if (request.getRequestFilter().getToDate() != null) {
-                images = images.stream().filter(image -> image.getUploaded().getTime() < request.getRequestFilter().getToDate().getTime()).collect(Collectors.toList());
+                images = images.stream().filter(image -> image.getUploaded().getTime() <= request.getRequestFilter().getToDate().getTime()).collect(Collectors.toList());
             }
             if (request.getRequestFilter().getLatitude() != null && request.getRequestFilter().getLongitude() != null && request.getRequestFilter().getDistance() != null) {
                 images = images.stream().filter(image -> {
@@ -125,7 +125,9 @@ public class ImageController {
             int to = Math.min(request.getPageCount() * request.getBatchSize() + request.getBatchSize(), images.size());
             images = images.subList(from, to);
         }
-        loadImageThumbnailData(images);
+        if (request.getLoadThumbnails() != null && request.getLoadThumbnails()) {
+            loadImageThumbnailData(images);
+        }
         return images;
     }
 
@@ -223,6 +225,22 @@ public class ImageController {
                     .body(resource);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping(value = "/getImageDatas/")
+    public List<String> getImageDatas(@RequestBody List<String> imageIds) throws Exception {
+        try {
+            List<String> dataList = new ArrayList<>();
+            for (String imageId : imageIds) {
+                Image image = getImageById(imageId);
+                Path imagePath = Paths.get(IMAGE_PATH + image.getIdWithExtension());
+                ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(imagePath));
+                dataList.add(new String(Base64.getEncoder().encode(resource.getByteArray())));
+            }
+            return dataList;
+        } catch (Exception e) {
+            throw new Exception();
         }
     }
 
