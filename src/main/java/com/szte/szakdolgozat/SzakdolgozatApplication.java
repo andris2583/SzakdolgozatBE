@@ -1,6 +1,7 @@
 package com.szte.szakdolgozat;
 
 import com.szte.szakdolgozat.controller.ImageController;
+import com.szte.szakdolgozat.service.CollectionService;
 import com.szte.szakdolgozat.service.ImageService;
 import com.szte.szakdolgozat.service.ImageViewMapService;
 import com.szte.szakdolgozat.service.TagService;
@@ -21,7 +22,7 @@ public class SzakdolgozatApplication {
     }
 
     @Bean
-    CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, TagService tagService, ImageService imageService, ImageViewMapService imageViewMapService) {
+    CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, TagService tagService, ImageService imageService, ImageViewMapService imageViewMapService, CollectionService collectionService) {
         return args -> {
             //INIT imageViewMap
 //            var map = new HashMap<String, Integer>();
@@ -94,6 +95,36 @@ public class SzakdolgozatApplication {
 //				tagService.insertTag(tag);
 //			}
 //			System.out.println("Finished");
+//            List<Image> images = imageService.getAllImages();
+//            for (Image image : images) {
+//                File fi = new File(IMAGE_PATH + image.getIdWithExtension());
+//                byte[] data = Files.readAllBytes(fi.toPath());
+//                image.getProperties().put("size", data.length);
+//                imageService.saveImage(image);
+//            }
+//            imageService.getAllImages().forEach(image -> {
+////                63bad48193e8d914434184ee -> 640dc6aa9aad2c0a02c9ae4d
+////                640dc5402bff6b1e3af0e141 -> 640dc6bd9aad2c0a02c9ae4f
+//                if (Objects.equals(image.getOwnerId(), "640dc6bd9aad2c0a02c9ae4f")) {
+//                    image.setOwnerId("640dc8afc8b9971febbb5677");
+//                    imageService.saveImage(image);
+//                }
+////                if (Objects.equals(image.getOwnerId(), "63f0e44713df4436bec21418")) {
+////                    image.setOwnerId("640dc6bd9aad2c0a02c9ae4f");
+////                    imageService.saveImage(image);
+////                }
+//            });
+//            collectionService.getAllCollections().forEach(collection -> {
+//                if (Objects.equals(collection.getUserId(), "640dc6bd9aad2c0a02c9ae4f")) {
+//                    collection.setUserId("640dc8afc8b9971febbb5677");
+//                    collectionService.saveCollection(collection);
+//                }
+////                if (Objects.equals(collection.getUserId(), "63f0e44713df4436bec21418")) {
+////                    collection.setUserId("640dc6bd9aad2c0a02c9ae4f");
+////                    collectionService.saveCollection(collection);
+////                }
+//            });
+//            System.out.println("Finished");
         };
     }
 

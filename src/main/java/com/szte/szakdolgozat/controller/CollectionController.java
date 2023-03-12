@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200/", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200/", maxAge = 3600, allowCredentials = "true")
 @RequestMapping("/collection")
 public class CollectionController {
     private final CollectionService collectionService;
@@ -41,6 +41,11 @@ public class CollectionController {
     @PutMapping("/insert")
     public Collection insertCollection(@RequestBody Collection collection) {
         return collectionService.insertCollection(collection);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteCollection(@PathVariable String id) {
+        collectionService.deleteCollection(id);
     }
 
 }

@@ -26,8 +26,8 @@ public class CollectionService {
         return collectionRepository.insert(collection);
     }
 
-    public void deleteCollection(Collection collection) {
-        collectionRepository.delete(collection);
+    public void deleteCollection(String id) {
+        collectionRepository.deleteById(id);
     }
 
     public Collection saveCollection(Collection collection) {

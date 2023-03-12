@@ -3,7 +3,6 @@ package com.szte.szakdolgozat.controller;
 import com.szte.szakdolgozat.model.Collection;
 import com.szte.szakdolgozat.model.CollectionType;
 import com.szte.szakdolgozat.model.Image;
-import com.szte.szakdolgozat.model.User;
 import com.szte.szakdolgozat.service.CollectionService;
 import com.szte.szakdolgozat.service.ImageService;
 import com.szte.szakdolgozat.service.TagService;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200/", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200/", maxAge = 3600, allowCredentials = "true")
 @RequestMapping("/dashboard")
 public class DashboardController {
     private final ImageService imageService;
@@ -44,12 +43,15 @@ public class DashboardController {
     }
 
     @PutMapping("/getFavouriteTags")
-    public String[] getFavouriteTags(@RequestBody User user) {
+    public String[] getFavouriteTags(@RequestBody String userId) {
         Collection favouriteCollection = this.collectionService.getAllCollections().stream()
-                .filter(collection -> Objects.equals(collection.getUserId(), user.getId()) && collection.getType().equals(CollectionType.FAVOURITE))
+                .filter(collection -> Objects.equals(collection.getUserId(), userId) && collection.getType().equals(CollectionType.FAVOURITE))
                 .toList().get(0);
         List<Image> favouriteImages = imageService.getAllImages();
         favouriteImages = favouriteImages.stream().filter(tempImage -> favouriteCollection.getImageIds().contains(tempImage.getId())).collect(Collectors.toList());
+        if (favouriteImages.size() == 0) {
+            return new String[0];
+        }
         Map<String, Integer> favouriteTags = new HashMap<>();
         favouriteImages.forEach(favouriteImage -> {
             favouriteImage.getTags().forEach(favouriteTag -> {
@@ -75,24 +77,29 @@ public class DashboardController {
     }
 
     @PutMapping("/getSimilarToUserImages")
-    public List<Image> getSimilarToUserImages(@RequestBody User user) {
+    public List<Image> getSimilarToUserImages(@RequestBody String userId) {
         List<Image> allImages = this.imageService.getAllImages();
-        List<Image> userImages = allImages.stream().filter(image -> image.getOwnerId().equals(user.getId())).toList();
-        List<Image> notUserImages = allImages.stream().filter(image -> !image.getOwnerId().equals(user.getId())).toList();
+        List<Image> userImages = allImages.stream().filter(image -> image.getOwnerId().equals(userId)).toList();
+        if (userImages.size() == 0) {
+            return userImages;
+        }
+        List<Image> notUserImages = allImages.stream().filter(image -> !image.getOwnerId().equals(userId)).toList();
         List<Image> returnImages = new ArrayList<>();
         int sameTagCount = 5;
         while (sameTagCount > 0) {
             int finalSameTagCount = sameTagCount;
+            List<Image> finalReturnImages = returnImages;
             userImages.forEach(userImage -> {
                 notUserImages.forEach(notUserImage -> {
                     if (userImage.getTags().stream().filter(userImageTag -> notUserImage.getTags().contains(userImageTag)).toList().size() == finalSameTagCount
-                            && !returnImages.contains(notUserImage)) {
-                        returnImages.add(notUserImage);
+                            && !finalReturnImages.contains(notUserImage)) {
+                        finalReturnImages.add(notUserImage);
                     }
                 });
             });
             sameTagCount--;
         }
+        returnImages = returnImages.subList(0, Math.min(10, returnImages.size() - 1));
         ImageUtils.loadImageThumbnailData(returnImages);
         return returnImages;
     }

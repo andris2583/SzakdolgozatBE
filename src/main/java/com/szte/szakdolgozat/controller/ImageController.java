@@ -37,7 +37,7 @@ import static com.szte.szakdolgozat.util.ImageUtils.loadImageThumbnailData;
 
 @RestController
 @AllArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200/", maxAge = 3600)
+@CrossOrigin(origins = "http://localhost:4200/", maxAge = 3600, allowCredentials = "true")
 @RequestMapping("/image")
 public class ImageController {
     private final ImageService imageService;
@@ -108,9 +108,23 @@ public class ImageController {
                 case ALPHABETICAL -> {
                     images = images.stream().sorted(Comparator.comparing(Image::getName).reversed()).collect(Collectors.toList());
                 }
-                case POPULAR -> {
+                case VIEW -> {
                     Map<String, Integer> map = this.imageViewMapService.getAllImageViewMaps().get(0).getImageViewMap();
-                    images = images.stream().sorted(Comparator.comparingInt(o -> map.get(o.getId()))).collect(Collectors.toList());
+                    images = images.stream().sorted(Comparator.comparingInt(o -> (map.get(o.getId()) != null) ? map.get(o.getId()) : 0)).collect(Collectors.toList());
+                    Collections.reverse(images);
+                }
+                case LIKE -> {
+                    List<Collection> collections = this.collectionService.getAllCollections().stream().filter(collection -> collection.getType() == CollectionType.FAVOURITE).toList();
+                    images = images.stream().sorted(Comparator.comparingInt(o -> {
+                        int imageInFavourite = 0;
+                        for (Collection collection : collections) {
+                            if (collection.getImageIds().contains(o.getId())) {
+                                imageInFavourite++;
+                            }
+                        }
+                        return imageInFavourite;
+                    })).collect(Collectors.toList());
+                    Collections.reverse(images);
                 }
                 case RANDOM -> {
                     Collections.shuffle(images);
@@ -152,6 +166,8 @@ public class ImageController {
         image.setName(FilenameUtils.getBaseName(image.getName()));
         String dataString = image.getImgB64().replaceFirst("data:image/.*;base64,", "");
         byte[] data = Base64.getDecoder().decode(dataString);
+        Map<Object, Object> props = new ObjectMapper().convertValue(image.getProperties(), Map.class);
+        image.getProperties().put("size", data.length);
         image.setImgB64(null);
         Image insertedImage = imageService.insertImage(image);
         try (OutputStream stream = new FileOutputStream(IMAGE_PATH + insertedImage.getIdWithExtension())) {
@@ -186,6 +202,7 @@ public class ImageController {
 
     @PutMapping("/update")
     public Image updateImage(@RequestBody Image image) {
+        image.setImgB64(null);
         return imageService.saveImage(image);
     }
 
@@ -355,9 +372,15 @@ public class ImageController {
         return imageInFavourite;
     }
 
+    @GetMapping("/getStorageByUser/{id}")
+    public int getStorageByUser(@PathVariable String id) {
+        return this.imageService.getAllImages().stream().filter(image -> Objects.equals(image.getOwnerId(), id)).mapToInt(image -> (Integer) (image.getProperties().get("size"))).sum();
+    }
+
     @GetMapping("/addViewToImage/{id}")
     public int addViewToImage(@PathVariable String id) {
         ImageViewMap imageViewMap = this.imageViewMapService.getAllImageViewMaps().get(0);
+        imageViewMap.getImageViewMap().putIfAbsent(id, 0);
         imageViewMap.getImageViewMap().put(id, imageViewMap.getImageViewMap().get(id) + 1);
         imageViewMapService.saveImageViewMap(imageViewMap);
         return imageViewMap.getImageViewMap().get(id);

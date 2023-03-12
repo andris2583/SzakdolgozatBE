@@ -1,6 +1,6 @@
 package com.szte.szakdolgozat.service;
 
-import com.szte.szakdolgozat.model.User;
+import com.szte.szakdolgozat.model.auth.User;
 import com.szte.szakdolgozat.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

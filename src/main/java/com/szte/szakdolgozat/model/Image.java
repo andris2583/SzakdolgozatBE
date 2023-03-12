@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Document
@@ -19,7 +20,7 @@ public class Image {
     private List<String> tags = new ArrayList<>();
     private Date uploaded = new Date(System.currentTimeMillis());
     private String imgB64;
-    private Object properties;
+    private Map<String, Object> properties;
     private String ownerId;
     private Privacy privacy;
 
