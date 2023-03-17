@@ -141,6 +141,10 @@ public class ImageController {
         }
         if (request.getLoadThumbnails() != null && request.getLoadThumbnails()) {
             loadImageThumbnailData(images);
+        } else {
+            images.forEach(image -> {
+                image.setImgB64(null);
+            });
         }
         return images;
     }
