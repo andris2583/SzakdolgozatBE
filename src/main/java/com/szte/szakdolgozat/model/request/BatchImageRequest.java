@@ -9,11 +9,11 @@ public class BatchImageRequest {
     private List<String> tags;
     private RequestTagType requestTagType;
     private RequestOrderByType requestOrderByType;
-    private RequestOrderType requestOrderType;
-    private Integer batchSize;
+    private RequestOrderType requestOrderType = RequestOrderType.ASC;
+    private Integer batchSize = -1;
     private Integer pageCount;
     private RequestFilter requestFilter;
     private String collectionId;
     private String requestUserId;
-    private Boolean loadThumbnails;
+    private Boolean loadThumbnails = false;
 }

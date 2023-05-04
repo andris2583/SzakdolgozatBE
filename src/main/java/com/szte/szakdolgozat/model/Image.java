@@ -13,16 +13,15 @@ import java.util.Map;
 @Document
 public class Image {
     @Id
-    private String id;
-    private String name;
-    private String extension;
-    private String location = "Unknown";
-    private List<String> tags = new ArrayList<>();
-    private Date uploaded = new Date(System.currentTimeMillis());
-    private String imgB64;
-    private Map<String, Object> properties;
-    private String ownerId;
-    private Privacy privacy;
+    String id;
+    String name;
+    String extension;
+    List<String> tags = new ArrayList<>();
+    Date uploaded = new Date(System.currentTimeMillis());
+    String imgB64;
+    Map<String, Object> properties;
+    String ownerId;
+    Privacy privacy;
 
     public String getIdWithExtension() {
         return this.id + "." + this.extension;

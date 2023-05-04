@@ -65,9 +65,9 @@ public class ImageTagger {
     }
 
     public List<String> generateTags(byte[] imageBytes) {
-        Tensor<String> inputTensor2 = Tensors.create(new byte[][]{imageBytes});
+        Tensor<String> inputTensor = Tensors.create(new byte[][]{imageBytes});
         Tensor<?> result = session.runner()
-                .feed("input_values:0", inputTensor2)
+                .feed("input_values:0", inputTensor)
                 .fetch("multi_predictions:0")
                 .run().get(0);
         float[] m = new float[5000];

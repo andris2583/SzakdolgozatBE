@@ -52,7 +52,7 @@ public class ImageController {
     public List<Image> getAllImages(@RequestBody BatchImageRequest request) {
         List<Image> images = imageService.getAllImages();
         //Filtering by tags
-        if (request.getTags().size() != 0) {
+        if (request.getTags() != null && request.getTags().size() != 0) {
             if (request.getRequestTagType().equals(RequestTagType.AND)) {
                 images = images.stream().filter(image -> new HashSet<>(image.getTags()).containsAll(new HashSet<>(request.getTags()))).collect(Collectors.toList());
             } else {
@@ -184,8 +184,6 @@ public class ImageController {
             ImageIO.write(thumbnailImage, "png", new File(THUMBNAIL_PATH + insertedImage.getId() + ".png"));
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             ImageIO.write(thumbnailImage, "png", byteArrayOutputStream);
-            byte[] fileContent = byteArrayOutputStream.toByteArray();
-            insertedImage.setImgB64(Base64.getEncoder().encodeToString(fileContent));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -207,6 +205,15 @@ public class ImageController {
     @PutMapping("/update")
     public Image updateImage(@RequestBody Image image) {
         image.setImgB64(null);
+        List<String> newTags = new ArrayList<>(image.getTags());
+        newTags.removeAll(tagService.getAllTags().stream().map(Tag::getName).toList());
+        if (newTags.size() != 0) {
+            for (String tagName : newTags) {
+                Tag tag = new Tag();
+                tag.setName(tagName);
+                tagService.insertTag(tag);
+            }
+        }
         return imageService.saveImage(image);
     }
 
@@ -232,18 +239,13 @@ public class ImageController {
         imageService.deleteImage(image);
     }
 
-    @GetMapping(value = "/getImageData/{id}",
-            produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/getImageData/{id}", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<?> getImageData(@PathVariable String id) throws IOException {
         try {
             Image image = getImageById(id);
             Path imagePath = Paths.get(IMAGE_PATH + image.getIdWithExtension());
             ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(imagePath));
-            return ResponseEntity
-                    .ok()
-                    .contentLength(imagePath.toFile().length())
-                    .contentType(MediaType.IMAGE_JPEG)
-                    .body(resource);
+            return ResponseEntity.ok().contentLength(imagePath.toFile().length()).contentType(MediaType.IMAGE_JPEG).body(resource);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

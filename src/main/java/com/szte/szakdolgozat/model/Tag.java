@@ -10,4 +10,11 @@ public class Tag {
     @Id
     private String id;
     private String name;
+
+    public Tag(String name) {
+        this.name = name;
+    }
+
+    public Tag() {
+    }
 }

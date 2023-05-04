@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Data
@@ -11,5 +12,5 @@ import java.util.Map;
 public class ImageViewMap {
     @Id
     private String id;
-    private Map<String, Integer> imageViewMap;
+    private Map<String, Integer> imageViewMap = new HashMap<>();
 }

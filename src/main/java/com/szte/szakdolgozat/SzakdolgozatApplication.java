@@ -1,15 +1,12 @@
 package com.szte.szakdolgozat;
 
-import com.szte.szakdolgozat.controller.ImageController;
-import com.szte.szakdolgozat.service.CollectionService;
-import com.szte.szakdolgozat.service.ImageService;
+import com.szte.szakdolgozat.controller.*;
 import com.szte.szakdolgozat.service.ImageViewMapService;
 import com.szte.szakdolgozat.service.TagService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @SpringBootApplication
@@ -22,7 +19,7 @@ public class SzakdolgozatApplication {
     }
 
     @Bean
-    CommandLineRunner runner(ImageController imageController, MongoTemplate mongoTemplate, TagService tagService, ImageService imageService, ImageViewMapService imageViewMapService, CollectionService collectionService) {
+    CommandLineRunner runner(ImageController imageController, CollectionController collectionController, UserController userController, TagController tagController, AuthController authController, ImageViewMapService imageViewMapService, TagService tagService) {
         return args -> {
             //INIT imageViewMap
 //            var map = new HashMap<String, Integer>();
@@ -125,6 +122,7 @@ public class SzakdolgozatApplication {
 ////                }
 //            });
 //            System.out.println("Finished");
+//            DatabaseGenerator.run(imageController, collectionController, userController, tagController, authController, imageViewMapService, tagService);
         };
     }
 
